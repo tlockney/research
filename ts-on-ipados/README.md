@@ -14,8 +14,14 @@ remote kernels on the homelab.
 
 Design exploration. Nothing built.
 
-## Next experiment
+## Experiments
 
-Swap sucrase for esbuild in cdp-kernel's cell transform and run the
-conformance suite on Node. Measures the critical path the note names
-(a pure-JS TypeScript transform) with no Swift and no iOS.
+- [`experiments/sucrase-type-strip/`](experiments/sucrase-type-strip/):
+  sucrase in place of esbuild for cell type stripping. Conformance suite
+  passes on Node; decorators are the only gap; jitless cost is acceptable.
+
+## Next
+
+Make type stripping pluggable in cdp-kernel (the first of the review's four
+changes), with sucrase as an option and `transpileModule` for cells that use
+decorators. Then the transport seam in `Kernel`.
