@@ -1,0 +1,49 @@
+diff --git a/src/transform.ts b/src/transform.ts
+index 8238cb3..0a8a800 100644
+--- a/src/transform.ts
++++ b/src/transform.ts
+@@ -19,6 +19,36 @@ import { type TransformOptions, transformSync } from "esbuild";
+ import { type Node, parse, type Pattern, type Program, type VariableDeclaration } from "acorn";
+ import { full, recursive } from "acorn-walk";
+ import { LineMap } from "./sourcemap.ts";
++import { transform as sucraseTransform } from "sucrase";
++
++// Experiment (research/ts-on-ipados): CDPK_TYPE_STRIP=sucrase strips types
++// with sucrase, a pure-JS transform, instead of esbuild's native binary.
++const USE_SUCRASE = process.env.CDPK_TYPE_STRIP === "sucrase";
++
++function stripTypesSucrase(code: string, options: CellTransformOptions, sourcemap: boolean): { code: string; mappings: string } {
++  const jsx = options.jsx;
++  // Like the esbuild path: prefer TSX, fall back to TS for `<T>x` assertions.
++  let firstError: unknown;
++  for (const transforms of [["typescript", "jsx"], ["typescript"]] as const) {
++    try {
++      const result = sucraseTransform(code, {
++        transforms: [...transforms],
++        disableESTransforms: true,
++        keepUnusedImports: true, // verbatimModuleSyntax
++        jsxRuntime: jsx?.mode === "automatic" ? "automatic" : "classic",
++        production: jsx?.mode === "automatic" ? !jsx.development : true,
++        ...(jsx?.mode === "automatic" && jsx.importSource ? { jsxImportSource: jsx.importSource } : {}),
++        ...(jsx?.mode === "classic" && jsx.factory ? { jsxPragma: jsx.factory } : {}),
++        ...(jsx?.mode === "classic" && jsx.fragment ? { jsxFragmentPragma: jsx.fragment } : {}),
++        ...(sourcemap ? { sourceMapOptions: { compiledFilename: "cell.js" }, filePath: "cell.tsx" } : {}),
++      });
++      return { code: result.code, mappings: result.sourceMap?.mappings ?? "" };
++    } catch (err) {
++      firstError ??= err;
++    }
++  }
++  throw new CellSyntaxError(firstError instanceof Error ? firstError.message : String(firstError));
++}
+ 
+ export const SHIM = "__cdpk";
+ 
+@@ -73,6 +103,7 @@ function stripTypesMapped(code: string, options: CellTransformOptions, sourcemap
+   if (IMPORT_REQUIRE.test(code)) {
+     throw new CellSyntaxError('import x = require("m") is not supported in a cell; use import x from "m"');
+   }
++  if (USE_SUCRASE) return stripTypesSucrase(code, options, sourcemap);
+   const compilerOptions = {
+     verbatimModuleSyntax: true,
+     ...(options.experimentalDecorators ? { experimentalDecorators: true } : {}),
