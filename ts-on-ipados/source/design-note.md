@@ -1,56 +1,26 @@
-<!-- Text extracted from https://m4mini.ling-hydra.ts.net/docs/ts-on-ipados (HTML snapshot dated 2026-10-15), kept here because the original is only reachable on the tailnet. Tables lost their header rows in extraction; the first row of each is the header. -->
-
-A TypeScript Environment for iPadOS · Design Note
-
-Design Note · Personal Projects
+<!-- Text extracted from https://m4mini.ling-hydra.ts.net/docs/ts-on-ipados (HTML snapshot dated 2026-10-15), kept here because the original is only reachable on the tailnet. Page navigation, diagrams and footer were dropped in extraction. -->
 
 # A TypeScript Environment for iPadOS
 
+_Design Note · Personal Projects_
+
 A design record for a TypeScript-first scripting and notebook environment on iPadOS—one app with two runtimes, built on cdp-kernel's kernel abstraction. It covers the platform constraints, the runtime options considered in detail, the local/remote unification model, and a tiered path from "notebooks on the iPad this weekend" to a full editor and automation environment.
 
- Status · Design exploration Owner · Thomas Lockney Updated · 2026·10·15
+**Status:** Design exploration · **Owner:** Thomas Lockney · **Updated:** 2026-10-15
 
 ## Contents
 
 - The premise — one app, two runtimes
-
 - Ground truth — what iOS actually permits
-
 - Runtime options — six ways to execute TypeScript on device
-
 - cdp-kernel as the kernel layer
-
 - The unified model — local is just a kernelspec
-
 - TypeScript authoring on device
-
 - The iPadOS canvas — layout for a large screen
-
 - The automation surface
-
 - Roadmap, risks, and open questions
 
-§ On this page
-
-- The premise
-
-- Ground truth
-
-- Runtime options
-
-- cdp-kernel as the kernel layer
-
-- The unified model
-
-- TypeScript authoring
-
-- The iPadOS canvas
-
-- The automation surface
-
-- Roadmap and risks
-
-## 01.The premise — one app, two runtimes
+## 01. The premise — one app, two runtimes
 
 The goal is a TypeScript-based scripting and authoring environment for iOS/iPadOS in the spirit of Juno for Python or Scriptable for JavaScript—but with Deno-flavored semantics, and with a property none of the existing products have: a single app that can execute against an on-device runtime or against remote kernels on the homelab, without a hard split between the two experiences. The iPad is treated as a first-class canvas throughout; nothing in this design is a scaled-up iPhone app.
 
@@ -59,22 +29,18 @@ Three product shapes live inside this one envelope. A script editor for single-f
 The prior art establishes both the ceiling and the gap:
 
 | Product | What it is | What it gets right | What's missing |
-
+| --- | --- | --- | --- |
 | Juno | Notebook UI with a local Python runtime | Proves notebooks work on iPadOS; deep Files integration | Local Python without numpy is weak; no TS |
-
 | Juno Connect | Jupyter client for remote servers | Proves the remote-kernel client works on iPadOS | A separate app—exactly the split this design dissolves |
-
 | Scriptable | JSC embed + iOS automation APIs | The automation register: share sheet, widgets, x-callback URLs | No TypeScript, no notebooks, no remote story |
-
 | CodeApp | Monaco + embedded Node on iPad | Proves a full IDE with a V8 runtime ships on the App Store | IDE-first, not notebook-first; JSC-era editor weight |
-
 | a-Shell | Unix-flavored terminal with interpreters | Package installs on device survived App Review | No kernel abstraction, no sync story |
 
 One app, one notebook format, one kernel abstraction. "Local" is a kernelspec. Shared storage replaces transfer. Capability negotiation replaces silent breakage.
 
 ---
 
-## 02.Ground truth — what iOS actually permits
+## 02. Ground truth — what iOS actually permits
 
 Every design decision downstream follows from a small set of platform facts. These are not opinions, and two of them are permanent: third-party apps cannot allocate writable-and-executable memory, and the sandbox is the filesystem.
 
@@ -83,23 +49,18 @@ iOS denies the JIT entitlement to non-WebKit processes. A page can be writable o
 The full constraint set, in one place:
 
 | Capability | On-device verdict | Consequence |
-
+| --- | --- | --- |
 | JIT compilation | Prohibited (no W+X pages) | Every embedded engine runs interpreter-only |
-
 | WebAssembly | Dead in an embedded jitless engine | No esbuild-wasm, no wasm libraries in the runtime tier |
-
 | Subprocesses (fork/exec) | Prohibited | No spawning compilers, shells, or helper binaries |
-
 | Listening sockets | Foreground only | Deno.serve is a foreground activity at best |
-
 | Background execution | ~30s after suspend | Kernels die with the app; state must be a re-run away |
-
 | Filesystem | Sandbox + TCC | Deno's permission model maps almost 1:1 onto iOS reality |
-
 | Binary size | Soft constraint | jitless V8 + snapshot ≈ 30–50 MB added to the app |
 
- Caveat · JIT exceptions exist, none apply
-WKWebView embeds gained JIT access around iOS 14.5 under specific conditions, and the EU DMA permits alternative browser engines—which would get the entitlement—but only for qualifying browser apps in the EU. For a notebook or automation app, jitless is permanent. Design for it; don't hold out for it.
+> **Caveat · JIT exceptions exist, none apply**
+>
+> WKWebView embeds gained JIT access around iOS 14.5 under specific conditions, and the EU DMA permits alternative browser engines—which would get the entitlement—but only for qualifying browser apps in the EU. For a notebook or automation app, jitless is permanent. Design for it; don't hold out for it.
 
 One enabler changed recently and it is the load-bearing fact of this whole design: rusty_v8 now supports iOS as a build target. The device target (aarch64-apple-ios) builds jitless; the simulator target (aarch64-apple-ios-sim) keeps the JIT; build.rs selects the configuration automatically. Building the "packaged Deno runtime" is now V8_FROM_SOURCE=1 cargo build --target aarch64-apple-ios plus an XCFramework wrapper—a Rust static library linked into a SwiftUI shell. That is why the timing on this project is now, where it wasn't two years ago.
 
@@ -107,7 +68,7 @@ Finally, App Store rule 2.5.2 forbids downloading executable code, with an estab
 
 ---
 
-## 03.Runtime options — six ways to execute TypeScript on device
+## 03. Runtime options — six ways to execute TypeScript on device
 
 There are six credible paths for the on-device execution tier. They differ on engine semantics, toolchain weight, WebAssembly availability, and how faithfully they reproduce the remote tier's behavior. The recommendation is V8-jitless via rusty_v8, but the trade space deserves a full accounting before committing, because the second choice (JavaScriptCore) is dramatically cheaper to prototype with and the decision can be staged.
 
@@ -150,31 +111,27 @@ What it is: the small, complete, interpreter-only ES2023 engine (quickjs-ng is t
 Why it's the fallback and not the pick: not V8 semantics (the parity tax again), measurably slower than V8's interpreter on heavy code, and no path to the snapshot/inspector/isolate machinery that the kernel layer wants. If the rusty_v8 toolchain ever proves too costly to maintain, this is the pragmatic retreat—it keeps the entire product design intact minus engine parity.
 
 | Option | Engine parity | Wasm | Toolchain weight | Verdict |
-
+| --- | --- | --- | --- | --- |
 | A · V8 jitless (rusty_v8) | Exact | No | Heavy | The pick — the remote tier's engine, isolates, snapshot AOT |
-
 | B · JavaScriptCore | Diverges | No | None | Prototype tier; cheapest validation |
-
 | C · Hermes | Diverges | No | Medium | Right only for a pure-automation pivot |
-
 | D · Bun / workerd | — | — | — | Prior art for the in-process backend pattern |
-
 | E · WKWebView | Diverges | Yes (JIT too) | None | Compiler sidecar, not the cell runtime |
-
 | F · QuickJS | Diverges | Partial | Light | The retreat position if V8 maintenance bites |
 
- Recommendation · Stage the decision
-Prototype the shell against JavaScriptCore (days), but architect the kernel layer so the engine is behind cdp-kernel's KernelTarget seam. Then swap in rusty_v8 behind that seam without touching the UI or the protocol code. The staging costs nothing—the seam exists for exactly this—and it removes the risk that the toolchain investigation blocks the UX work.
+> **Recommendation · Stage the decision**
+>
+> Prototype the shell against JavaScriptCore (days), but architect the kernel layer so the engine is behind cdp-kernel's KernelTarget seam. Then swap in rusty_v8 behind that seam without touching the UI or the protocol code. The staging costs nothing—the seam exists for exactly this—and it removes the risk that the toolchain investigation blocks the UX work.
 
 ---
 
-## 04.cdp-kernel as the kernel layer
+## 04. cdp-kernel as the kernel layer
 
 cdp-kernel—a Jupyter kernel extracted from Deno's (deno jupyter, v2.9.6) that drives any V8 runtime over CDP—is not adjacent to this design; it is the server half of it. The kernel host runs on Node or Deno; cells run in a separate target runtime (Node, Deno over CDP; Bun, workerd, celld in-process). The remote tier of the iPad app is a Jupyter Server with cdp-kernel kernelspecs installed—full-fat V8 with JIT, wasm, npm, and a real filesystem, running on hardware already in the rack.
 
 The architectural fact that makes the on-device port tractable is the seam. Everything the kernel needs from a target runtime is behind one interface:
 
-```
+```ts
 /** What the kernel needs from a target runtime. (abridged) */
 export interface KernelTarget {
   readonly runtime: RuntimeName;
@@ -213,7 +170,7 @@ cdp-kernel passes a conformance suite derived from Deno's own Jupyter integratio
 
 ---
 
-## 05.The unified model — local is just a kernelspec
+## 05. The unified model — local is just a kernelspec
 
 The Juno/Juno Connect split is an artifact of product history and App Store SKU economics, not a technical necessity. In this design the app has one notebook model and one kernel picker; whether the executing isolate lives in-process on the device or in a celld process on m4mini is a session property, not an app identity.
 
@@ -223,7 +180,7 @@ The floor is honest runtime errors—Deno-style, capability-labeled, specific: D
 
 Advertise capabilities in kernel metadata. kernel_info already carries version wiring; add a capability manifest so the client can badge kernels before a single cell runs, and surface it in-band via the existing first-cell notice channel:
 
-```
+```json
 {
   "kernel": "cdp-ios",
   "engine": "v8-jitless",
@@ -251,7 +208,7 @@ Design for the split being visible and deliberate—a badge, not a veil. A local
 
 ---
 
-## 06.TypeScript authoring on device
+## 06. TypeScript authoring on device
 
 The runtime is the easy half. The hard product question is what writing TypeScript feels like—and on a jitless, no-wasm, no-subprocess device, every step in the conventional TS pipeline has to be re-derived.
 
@@ -275,7 +232,7 @@ CodeMirror 6 in a WKWebView is the editor substrate—Monaco is what CodeApp shi
 
 ---
 
-## 07.The iPadOS canvas — layout for a large screen
+## 07. The iPadOS canvas — layout for a large screen
 
 iPadOS is the primary target, not a compatibility afterthought. The design center is a landscape iPad with a hardware keyboard and trackpad—the machine Thomas actually computes on—and the layout earns that screen real estate the way a pro app should, with a three-pane structure rather than a stretched phone sheet.
 
@@ -293,18 +250,19 @@ Run cell (⌘↩), insert below/above, move, split, delete; a ⌘K command palet
 
 Split View alongside Safari/Docs is the default working posture—design the inspector contents to be useful when only two panes are visible. Stage Manager windows should remember their pane configuration independently. An external display gets the notebook at full width with the inspector on the iPad's own screen. Undo/redo spans cell edits and runs; find-and-replace arrives in a sheet, not a pane swap.
 
- Note · Accessibility bar
-Interactive targets ≥ 60pt, Dynamic Type honored in all UI chrome (editor font scales separately, as editors must), VoiceOver labels on cell controls, and reduced-motion respected throughout—same bar the MedLog accessibility constraints set.
+> **Note · Accessibility bar**
+>
+> Interactive targets ≥ 60pt, Dynamic Type honored in all UI chrome (editor font scales separately, as editors must), VoiceOver labels on cell controls, and reduced-motion respected throughout—same bar the MedLog accessibility constraints set.
 
 ---
 
-## 08.The automation surface
+## 08. The automation surface
 
 The second product register, and the reason "scripting environment" is the more accurate phrase over "notebook app": the same runtime, the same files, exposed to the system the way Scriptable proved viable—share sheet, widgets, Shortcuts, notifications, x-callback URLs.
 
 A device namespace bridges iOS into the jitless isolate via the same Rust-op path the kernel uses, so automation scripts and notebook cells share one world:
 
-```
+```ts
 // An automation script, running in the local jitless isolate
 const loc = await device.location.current();
 const forecast = await fetch(
@@ -322,17 +280,12 @@ await device.notify("Weather", {
 Deno's permission model maps almost 1:1 onto iOS reality, and that mapping is the app's most differentiated UX surface:
 
 | Deno concept | iOS reality | UX |
-
+| --- | --- | --- |
 | --allow-read / --allow-write | App sandbox + Files providers | Per-script directory scopes |
-
 | --allow-net | Foreground networking; ATS | Domain grants, first-use prompt |
-
 | --allow-env | Script-scoped key/value store | No ambient secrets by default |
-
 | Location | CoreLocation + TCC prompt | System dialog, ledger records the grant |
-
 | Notifications | UNUserNotificationCenter | Per-script interrupt level |
-
 | Photos / Share | PhotoKit, share sheet extension | Per-script read-only grants |
 
 Every grant lands in a first-class ledger screen; every script's header declares its permissions; prompts use Deno's first-use-request pattern rather than an install-time wall of dialogs. Noise discipline—learned the hard way on the homelab—applies: default notification levels are passive unless the script says otherwise, and repeat-prompt suppression is per (script, capability), not per app launch.
@@ -341,23 +294,21 @@ Every grant lands in a first-class ledger screen; every script's header declares
 
 Share sheet: an Action Extension receives text/URLs/files and runs a chosen script against them. Widgets: WidgetKit extensions run precompiled, snapshot-bundled scripts on a timeline—memory budgets are tight (tens of MB) so widgets take pre-baked bundles, not live V8; Scriptable's JSC-in-extension precedent is the model, and snapshot-AOT artifacts from the V8 tier are the upgrade path. Shortcuts: App Intents wrapping script run/parameters/permissions, so scripts compose with the rest of the system. Background: BGTaskScheduler refreshes with strict time budgets; long fetches use background URLSession; nothing pretends the kernel survives suspension. Sockets: Deno.serve works while foregrounded—the "iPad as a LAN service" gimmick stays honest by being foreground-only.
 
- Caution · App Review 2.5.2
-User-authored code in an embedded interpreter is established-ground (Scriptable, CodeApp, a-Shell, Juno). The gray zone is runtime fetch of executable code—the npm:/jsr: registry path. Ship it as a deliberate, documented feature; keep the on-device story "user-authored scripts execute locally, package fetch is data until imported"; and keep the remote-kernel path's execution firmly on the remote side, where it stays unambiguous.
+> **Caution · App Review 2.5.2**
+>
+> User-authored code in an embedded interpreter is established-ground (Scriptable, CodeApp, a-Shell, Juno). The gray zone is runtime fetch of executable code—the npm:/jsr: registry path. Ship it as a deliberate, documented feature; keep the on-device story "user-authored scripts execute locally, package fetch is data until imported"; and keep the remote-kernel path's execution firmly on the remote side, where it stays unambiguous.
 
 ---
 
-## 09.Roadmap, risks, and open questions
+## 09. Roadmap, risks, and open questions
 
 The sequencing principle: validate the workflow with zero Swift before writing any, then buy down risk in the order that protects the biggest investment—UX first, kernel second, toolchain third.
 
 | Tier | Scope | Effort | Gate to pass before the next |
-
+| --- | --- | --- | --- |
 | 0 · Remote validation | Jupyter Server + cdp-kernel on the tailnet (m4mini or shanghai); Juno Connect on the iPad as the client; token auth on the server (the shanghai Lab's tokenless, allow-origin=* setup is the counter-example to copy from) | A weekend | Does notebook-on-iPad actually fit the daily workflow? |
-
 | 1 · Bespoke client | SwiftUI shell, CodeMirror 6 editor, Jupyter wire protocol in Swift (zmtp.ts as the port map), remote kernels only, SMB notebook library via Files | Weeks–months | Is a bespoke client materially better than Juno Connect + Safari? |
-
 | 2 · Embedded kernel | JSC behind the KernelTarget seam (prototype) → rusty_v8 jitless IosTarget; acorn-based pure-JS transform; conformance suite green; ZMTP listener for desktop-driven development | Months | Does the local tier earn its keep against the remote default? |
-
 | 3 · Automation surface | device namespace, permission ledger, share sheet, widgets (pre-baked bundles), App Intents, notification discipline | Months, parallel to 2 | App Review treatment of registry fetch |
 
 ### Risk register
@@ -377,5 +328,3 @@ Review risk. 2.5.2 on registry fetch is the one App Store exposure; the mitigati
 Does the workerd-style bundle-with-the-cell trick extend to the local tier for imports (bundle host-side in the editor WebView, ship plain JS to the runtime)? Is there any appetite upstream for a cdp-kernel kernelspec schema that carries capability manifests natively? And the honest product question from the beginning stands: if the remote kernel is the real experience, is the local tier a product—or a feature of one? The tiered roadmap answers it empirically: build Tier 0, and let usage say.
 
 The thesis in one line: cdp-kernel already built the server half; rusty_v8's iOS target unlocked the client half; the only genuinely new engineering is the seam between them and the editor that deserves the screen.
-
----  ts-on-ipados · design note Personal Projects · cdp-kernel 2026·10·15        Dark  Paged
