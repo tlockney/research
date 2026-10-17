@@ -9,4 +9,4 @@ Modeled on Simon Willison's [simonw/research](https://github.com/simonw/research
 ## Projects
 
 - [ts-on-ipados](ts-on-ipados/): a TypeScript scripting and notebook environment for iPadOS. Design exploration; nothing built.
-- [jupyter-core-rs](jupyter-core-rs/): a Jupyter server in Rust with no Python dependency, aimed at TypeScript kernels such as cdp-kernel. Code sketch: protocol, kernel host, nbformat, and headless executor crates drive ipykernel over ZeroMQ; no server crate yet.
+- [jupyter-core-rs](jupyter-core-rs/): a Jupyter server in Rust with no Python dependency, aimed at TypeScript kernels such as cdp-kernel. Code sketch: protocol, kernel host, nbformat, executor, contents, API, and server crates; `@jupyterlab/services` runs against the server with ipykernel.
