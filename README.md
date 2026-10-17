@@ -9,3 +9,4 @@ Modeled on Simon Willison's [simonw/research](https://github.com/simonw/research
 ## Projects
 
 - [ts-on-ipados](ts-on-ipados/): a TypeScript scripting and notebook environment for iPadOS. Design exploration; nothing built.
+- [jupyter-core-rs](jupyter-core-rs/): a Rust reimplementation of the Jupyter core (kernel host, web UI, protocol). Design sketch; nothing built.
