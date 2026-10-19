@@ -28,3 +28,11 @@ Do not commit copies of code you fetched, dependency directories such as `node_m
 ## Moving a project out
 
 When a project moves to its own repo, replace its directory contents with a `README.md` that links to the new repo, and update its entry in the root `README.md`.
+
+Keep a `migration.md` beside that `README.md`, and link to it from the `README.md`. The new repo carries the code and history; this note is the record of what the research phase was for and where it ended. It has three sections:
+
+- **Premise**: the question or goal the project started with, as it was first stated, and any later restatements of scope.
+- **Timeline**: dated entries for the notable steps, taken from `notes.md` and the commit log. Record what changed in the thinking at each step, not just what was built.
+- **State at migration**: the date, the commit that moved it, what worked, what was unfinished, the open questions, and the next steps as understood then. Name the new repo and say what, if anything, was left behind.
+
+Write it from `notes.md` and `README.md` before deleting them, since the git history here keeps the files but nobody reads it. Several paragraphs is enough; link to the new repo rather than restating its docs.
