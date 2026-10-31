@@ -1,0 +1,879 @@
+<title>Ganymede Journal</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: an engineering lab pad. Graph-paper ground, one reading column, a session log
+   laid out as conversation | notebook | margin notes, and status chips that say what is real. */
+:root {
+  --paper: #f3f5f1;
+  --grid: #e3e8e1;
+  --surface: #ffffff;
+  --ink: #18212a;
+  --muted: #5a6570;
+  --rule: #cdd5cd;
+  --accent: #2747b8;
+  --accent-soft: #e5eafb;
+  --margin: #d9a0a0;
+  --ok: #1d7448;
+  --ok-soft: #e0f1e6;
+  --plan: #2747b8;
+  --plan-soft: #e5eafb;
+  --prop: #94600a;
+  --prop-soft: #f8edd6;
+  --human: #7a3e8f;
+  --human-soft: #f2e6f6;
+  --code-bg: #eef1ec;
+  --bar: #2747b8;
+  --bar-dim: #9fb0e6;
+  --font-display: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #11161b; --grid: #19212a; --surface: #161d24; --ink: #e3e8ec; --muted: #9ba7b2;
+    --rule: #2a343e; --accent: #93a9ff; --accent-soft: #1d2647; --margin: #6e3a3a;
+    --ok: #6fca99; --ok-soft: #14301f; --plan: #93a9ff; --plan-soft: #1d2647;
+    --prop: #e8b65c; --prop-soft: #362a12; --human: #d39be6; --human-soft: #2f1d37;
+    --code-bg: #1b232b; --bar: #93a9ff; --bar-dim: #3f4f86;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #11161b; --grid: #19212a; --surface: #161d24; --ink: #e3e8ec; --muted: #9ba7b2;
+  --rule: #2a343e; --accent: #93a9ff; --accent-soft: #1d2647; --margin: #6e3a3a;
+  --ok: #6fca99; --ok-soft: #14301f; --plan: #93a9ff; --plan-soft: #1d2647;
+  --prop: #e8b65c; --prop-soft: #362a12; --human: #d39be6; --human-soft: #2f1d37;
+  --code-bg: #1b232b; --bar: #93a9ff; --bar-dim: #3f4f86;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  margin: 0;
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.page { max-width: 1120px; margin: 0 auto; padding-block: 32px 96px; }
+a { color: var(--accent); text-underline-offset: 2px; }
+a:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 600; text-wrap: balance; line-height: 1.2; margin: 0; }
+h2 { font-size: clamp(26px, 3.4vw, 34px); }
+h3 { font-size: 21px; }
+p { margin: 0; }
+code, pre, .mono { font-family: var(--font-mono); }
+code { font-size: .86em; background: var(--code-bg); padding: 1px 5px; border-radius: 3px; overflow-wrap: anywhere; }
+pre { margin: 0; font-size: 12.5px; line-height: 1.6; overflow-x: auto; }
+pre code { background: none; padding: 0; font-size: inherit; overflow-wrap: normal; }
+.c-k { color: var(--accent); }
+.c-s { color: var(--ok); }
+.c-c { color: var(--muted); font-style: italic; }
+.eyebrow { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.prose { display: grid; gap: 14px; max-width: 70ch; }
+.prose p, .prose li { max-width: 70ch; }
+section { margin-top: 88px; }
+section > header { display: grid; gap: 8px; margin-bottom: 24px; padding-top: 18px; border-top: 2px solid var(--ink); }
+
+/* status chips */
+.chip { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 3px; white-space: nowrap; line-height: 1.6; vertical-align: 1px; }
+.chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.chip.today { color: var(--ok); background: var(--ok-soft); }
+.chip.plan { color: var(--plan); background: var(--plan-soft); }
+.chip.prop { color: var(--prop); background: var(--prop-soft); }
+.chip.prop::before { background: transparent; border: 1.5px dashed currentColor; width: 5px; height: 5px; }
+.legend { display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: baseline; font-size: 14px; color: var(--muted); }
+.legend > span { display: flex; gap: 8px; align-items: baseline; }
+
+/* masthead */
+.masthead { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; align-items: baseline; padding-bottom: 10px; border-bottom: 1px solid var(--rule); }
+.masthead strong { font-family: var(--font-display); font-size: 20px; font-weight: 600; }
+.fiction-flag { font-family: var(--font-mono); font-size: 11.5px; color: var(--prop); border: 1px dashed var(--prop); padding: 2px 8px; border-radius: 3px; }
+
+/* press release */
+.release { background: var(--surface); border: 1px solid var(--rule); margin-top: 28px; padding: clamp(20px, 4vw, 48px); display: grid; gap: 18px; position: relative; }
+.release .kicker { font-family: var(--font-mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 18px; }
+.release h1 { font-size: clamp(32px, 5.4vw, 56px); line-height: 1.08; letter-spacing: -.01em; max-width: 20ch; }
+.release .sub { font-family: var(--font-display); font-style: italic; font-size: clamp(19px, 2.2vw, 23px); line-height: 1.4; color: var(--muted); max-width: 46ch; }
+.release .body { columns: 2 320px; column-gap: 40px; font-size: 16px; }
+.release .body p { margin: 0 0 14px; break-inside: avoid-column; }
+.release .body p:first-child::first-letter { font-family: var(--font-display); font-weight: 600; float: left; font-size: 3.4em; line-height: .85; padding: 6px 8px 0 0; }
+.dateline { font-weight: 600; }
+blockquote { margin: 0 0 14px; padding-left: 14px; border-left: 3px solid var(--accent); font-family: var(--font-display); font-size: 18px; line-height: 1.45; break-inside: avoid; }
+blockquote cite { display: block; font-family: var(--font-body); font-style: normal; font-size: 13px; color: var(--muted); margin-top: 6px; }
+.release .end { font-family: var(--font-mono); font-size: 12px; color: var(--muted); text-align: center; letter-spacing: .3em; }
+
+/* tenets */
+.tenets { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0; border: 1px solid var(--rule); background: var(--surface); }
+.tenets > div { padding: 18px 20px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); display: grid; gap: 6px; align-content: start; }
+.tenets b { font-family: var(--font-display); font-size: 18px; font-weight: 600; }
+.tenets p { font-size: 14.5px; color: var(--muted); }
+
+/* session log */
+.session-head { display: grid; grid-template-columns: 74px minmax(0, 1fr) minmax(0, 1.15fr); gap: 20px; font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding: 0 0 8px; border-bottom: 1px solid var(--rule); }
+.moment { display: grid; grid-template-columns: 74px minmax(0, 1fr) minmax(0, 1.15fr); gap: 20px; padding: 22px 0; border-bottom: 1px dashed var(--rule); }
+.moment .t { font-family: var(--font-mono); font-size: 13px; color: var(--muted); padding-top: 2px; display: grid; gap: 2px; align-content: start; }
+.moment .t b { color: var(--ink); font-weight: 500; font-size: 15px; }
+.convo, .nbcol { display: grid; gap: 10px; align-content: start; min-width: 0; }
+.msg { display: grid; gap: 3px; font-size: 15px; }
+.msg .who { font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.msg.human .who { color: var(--human); }
+.msg.agent .who { color: var(--accent); }
+.tool { font-family: var(--font-mono); font-size: 12px; background: var(--surface); border: 1px solid var(--rule); border-radius: 4px; padding: 7px 10px; overflow-x: auto; min-width: 0; }
+.tool .name { color: var(--accent); font-weight: 500; }
+.tool .ret { color: var(--muted); display: block; margin-top: 3px; white-space: pre-wrap; }
+.tool.scratch { border-style: dashed; color: var(--muted); }
+.notes { grid-column: 2 / -1; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 8px 20px; padding-top: 4px; }
+.note { font-size: 13.5px; line-height: 1.55; color: var(--muted); }
+.note .chip { display: flex; width: max-content; margin-bottom: 6px; }
+
+/* notebook cells (inside the session and the finished journal) */
+.nb { background: var(--surface); border: 1px solid var(--rule); border-radius: 4px; position: relative; padding-left: 0; }
+.cell { display: grid; grid-template-columns: 46px minmax(0, 1fr); border-top: 1px solid var(--grid); }
+.cell:first-child { border-top: 0; }
+.cell .gut { font-family: var(--font-mono); font-size: 11px; color: var(--muted); text-align: right; padding: 10px 8px 0 0; border-right: 2px solid var(--margin); display: grid; gap: 4px; align-content: start; justify-items: end; }
+.cell .body { padding: 10px 14px; min-width: 0; display: grid; gap: 8px; }
+.cell .body h4 { font-family: var(--font-display); font-weight: 600; font-size: 18px; margin: 0; }
+.cell .body h5 { font-family: var(--font-display); font-weight: 600; font-size: 22px; margin: 0; line-height: 1.2; }
+.cell .md { font-size: 14.5px; display: grid; gap: 6px; }
+.cell .src { background: var(--code-bg); padding: 8px 10px; border-radius: 3px; min-width: 0; }
+.cell .out { font-size: 13px; min-width: 0; }
+.cell.new { background: linear-gradient(90deg, var(--accent-soft), transparent 70%); }
+.cell.human-cell { background: linear-gradient(90deg, var(--human-soft), transparent 70%); }
+.prov { font-family: var(--font-mono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; padding: 0 4px; border-radius: 2px; }
+.prov.e { color: var(--ok); background: var(--ok-soft); }
+.prov.r { color: var(--prop); background: var(--prop-soft); }
+.prov.n { color: var(--accent); background: var(--accent-soft); }
+.prov.h { color: var(--human); background: var(--human-soft); }
+.recorded { border-left: 3px solid var(--prop); padding-left: 10px; display: grid; gap: 6px; }
+.recorded .lbl { font-family: var(--font-mono); font-size: 11px; color: var(--prop); }
+.empty-nb { font-family: var(--font-mono); font-size: 12px; color: var(--muted); border: 1px dashed var(--rule); border-radius: 4px; padding: 12px 14px; }
+del { color: var(--muted); text-decoration-thickness: 1.5px; }
+ins { text-decoration: none; background: var(--ok-soft); padding: 0 2px; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 5px 10px; border-bottom: 1px solid var(--grid); vertical-align: top; }
+th { font-family: var(--font-mono); font-size: 11px; font-weight: 500; color: var(--muted); letter-spacing: .04em; }
+td.n, th.n { text-align: right; }
+td.hot { color: var(--prop); font-weight: 600; }
+.scroll { overflow-x: auto; min-width: 0; }
+svg text { font-family: var(--font-mono); }
+.finding { background: var(--accent-soft); border-radius: 3px; padding: 8px 12px; font-size: 14.5px; }
+.finding b { font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); display: block; }
+
+/* finished journal */
+.journal { background: var(--surface); border: 1px solid var(--rule); box-shadow: 0 1px 0 var(--rule), 0 14px 30px -24px rgba(0,0,0,.35); max-width: 860px; margin: 0 auto; }
+.journal .jhead { padding: 28px clamp(18px, 4vw, 44px) 20px; border-bottom: 2px solid var(--ink); display: grid; gap: 14px; }
+.journal .jhead h3 { font-size: clamp(26px, 3.6vw, 36px); }
+.jmeta { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px 18px; font-size: 13px; }
+.jmeta div { display: grid; gap: 1px; }
+.jmeta span { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.stamp { justify-self: start; font-family: var(--font-mono); font-size: 11.5px; color: var(--ok); border: 1.5px solid var(--ok); border-radius: 3px; padding: 4px 10px; transform: rotate(-1.2deg); letter-spacing: .04em; }
+.journal .nb { border: 0; border-radius: 0; }
+.journal .cell .body { padding: 14px clamp(14px, 3vw, 32px) 14px 16px; }
+.summary-box { border: 1px solid var(--ink); padding: 12px 16px; display: grid; gap: 6px; font-size: 15px; }
+.summary-box ol { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+.annot { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px 24px; max-width: 860px; margin: 18px auto 0; font-size: 13.5px; color: var(--muted); }
+.annot b { display: block; margin-bottom: 3px; color: var(--ink); font-weight: 600; }
+
+/* kit */
+.kit { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; }
+.panel { background: var(--surface); border: 1px solid var(--rule); border-radius: 4px; display: grid; align-content: start; min-width: 0; }
+.panel > .ph { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; flex-wrap: wrap; padding: 10px 14px; border-bottom: 1px solid var(--rule); font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.panel > pre { padding: 12px 14px; }
+.panel > .pb { padding: 14px; display: grid; gap: 10px; font-size: 14.5px; }
+.tree { font-family: var(--font-mono); font-size: 12.5px; line-height: 1.75; padding: 12px 14px; overflow-x: auto; }
+.tree div { white-space: nowrap; display: flex; gap: 10px; align-items: baseline; }
+.tree .d { color: var(--muted); font-family: var(--font-body); font-size: 12.5px; white-space: normal; }
+
+/* diagram */
+figure { margin: 0; display: grid; gap: 10px; }
+figcaption { font-size: 13.5px; color: var(--muted); max-width: 75ch; }
+.diagram { background: var(--surface); border: 1px solid var(--rule); border-radius: 4px; padding: 14px; overflow-x: auto; }
+
+/* grounding table */
+.grounding { background: var(--surface); border: 1px solid var(--rule); border-radius: 4px; }
+.grounding table { font-size: 14px; min-width: 760px; }
+.grounding td, .grounding th { padding: 10px 12px; }
+.grounding td:first-child { font-weight: 500; min-width: 190px; }
+.grounding td:nth-child(3) { white-space: nowrap; }
+.grounding tr.group td { background: var(--code-bg); font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding: 6px 12px; font-weight: 500; }
+
+/* faq */
+.faq { display: grid; gap: 0; border-top: 1px solid var(--rule); }
+.faq details { border-bottom: 1px solid var(--rule); padding: 14px 0; }
+.faq summary { cursor: pointer; font-family: var(--font-display); font-size: 19px; font-weight: 600; list-style: none; display: flex; gap: 12px; align-items: baseline; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::before { content: "+"; font-family: var(--font-mono); color: var(--accent); width: 14px; flex: none; }
+.faq details[open] summary::before { content: "−"; }
+.faq .a { padding: 8px 0 0 26px; display: grid; gap: 10px; max-width: 72ch; font-size: 15.5px; }
+.faq-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; }
+
+/* next */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; border-top: 1px solid var(--rule); counter-reset: s; }
+.steps li { counter-increment: s; display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--rule); align-items: baseline; }
+.steps li::before { content: counter(s); font-family: var(--font-display); font-size: 24px; color: var(--accent); }
+.steps b { display: block; }
+.steps span.d { color: var(--muted); font-size: 14.5px; }
+.sources { font-size: 13.5px; color: var(--muted); display: grid; gap: 6px; }
+.sources ul { margin: 0; padding-left: 18px; display: grid; gap: 3px; }
+
+@media (max-width: 860px) {
+  .session-head { display: none; }
+  .moment { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .moment .t { grid-auto-flow: column; justify-content: start; gap: 10px; }
+  .notes { grid-column: 1; }
+  .kit, .faq-cols { grid-template-columns: minmax(0, 1fr); }
+  .steps li { grid-template-columns: 34px minmax(0, 1fr); }
+  .steps li .chip { grid-column: 2; justify-self: start; }
+}
+</style>
+
+<div class="page">
+
+<div class="masthead">
+  <strong>Ganymede Journal</strong>
+  <span class="eyebrow">Working backwards · design fiction · 31 Oct 2026</span>
+  <span class="fiction-flag">The release below describes a future state. The status chips say what exists.</span>
+</div>
+
+<!-- ============ PRESS RELEASE ============ -->
+<article class="release" aria-labelledby="pr-title">
+  <div class="kicker"><span>For release · spring 2027</span><span>tlockney/ganymede</span><span>Draft 1</span></div>
+  <h1 id="pr-title">Your agent keeps the lab notebook while you think</h1>
+  <p class="sub">Ganymede Journal lets Claude Code and other agents work through an analysis inside a live TypeScript notebook you can watch, edit and re-run, instead of writing one up at the end.</p>
+  <div class="body">
+    <p><span class="dateline">Spring 2027.</span> Ganymede, the Jupyter server with no Python in it, today adds Journal: a drop-in kit that turns any MCP-capable coding agent into a notebook-native research partner. Install one plugin, start a conversation about your data, and the agent records each step as it goes: the question it is asking, the code it ran on the notebook's kernel, the output it saw, and what it concluded. You can follow along in Ganymede's app or JupyterLab, add a cell of your own, or correct the agent mid-stream. When the session ends, the notebook already exists, it has run top to bottom on one kernel, and it reads like a lab notebook.</p>
+    <p>Until now, agent-led analysis has left two kinds of record, neither of them good. The chat transcript has everything but is unreadable a week later. The notebook the agent writes when asked "turn this into a notebook" is readable but reconstructed: code tidied after the fact, outputs re-run or never run, dead ends gone. Data people have been doing the second step by hand for years, and agents inherited the habit.</p>
+    <p>Journal changes the order of operations. The agent never runs analysis code anywhere but the notebook's kernel, so the journal is reproducible by construction. Steps that had to happen elsewhere, such as a <code>gh</code> or <code>curl</code> call that needs your credentials, are written in as clearly marked recorded cells and never pass as kernel output. Quick checks the agent makes to orient itself run on the same kernel without cluttering the page. When understanding changes, the agent revises the earlier finding in place, and the notebook keeps what it used to say.</p>
+    <blockquote>"I kept asking Claude to write the notebook at the end, and I realized I was asking it to redo the work I used to do in Jupyter directly. Now it does the work there in the first place, and I get to sit next to it."<cite>Thomas Lockney, Ganymede maintainer (draft quote)</cite></blockquote>
+    <p>Journal is built from parts that already exist. Ganymede serves the standard Jupyter API, so nb-cli, JupyterLab and VS Code connect unchanged. Its new <code>ganymede mcp</code> command gives agents a handful of tools shaped around one move, "add a cell and run it". The plugin bundles that MCP server with a journaling skill, a few hooks that keep the record honest, and a reviewer agent that reads the finished notebook cold. Nothing in it needs a custom agent harness: it is configuration for the agent you already use.</p>
+    <p>TypeScript is the default language, through cdp-kernel, with charts from Observable Plot or Vega-Lite and tables from Polars. Any installed kernel works, Python's included. Charts come back to the agent as images, so it reads the plot it just drew instead of guessing from the numbers.</p>
+    <blockquote>"The best part is the end. I don't ask for a write-up any more. I read the journal, fix one sentence, and link it in the incident ticket."<cite>A platform engineer, fictional early user</cite></blockquote>
+    <p>To start: install Ganymede and cdp-kernel, then run <code>/plugin install ganymede-journal</code> in Claude Code. Type <code>/ganymede:journal</code> and a question.</p>
+  </div>
+  <div class="end">###</div>
+</article>
+
+<section id="status" aria-labelledby="status-h">
+  <header>
+    <span class="eyebrow">How to read the rest</span>
+    <h2 id="status-h">Every claim carries a status</h2>
+  </header>
+  <div class="prose">
+    <p>The release is fiction; everything after it is a design. Each capability the story depends on is marked with one of three statuses, and the <a href="#grounding">reality check</a> lists them all with sources. Nothing here depends on a feature an AI lab has not shipped. The agent side uses Claude Code's documented skills, MCP, hooks, subagents and plugins as of 31 October 2026. Everything that has to be built is Ganymede's own work or a plugin of ours.</p>
+  </div>
+  <div class="legend" style="margin-top:18px">
+    <span><span class="chip today">Works today</span> shipped and documented, or validated against Ganymede</span>
+    <span><span class="chip plan">Planned</span> in Ganymede's issues #239 to #245</span>
+    <span><span class="chip prop">Proposed here</span> not tracked yet; buildable with today's agent features</span>
+  </div>
+</section>
+
+<section id="tenets" aria-labelledby="tenets-h">
+  <header>
+    <span class="eyebrow">Tenets</span>
+    <h2 id="tenets-h">What the workflow promises</h2>
+  </header>
+  <div class="tenets">
+    <div><b>Journal by executing</b><p>Analysis code runs only on the notebook's kernel. The notebook is the work, not a write-up of it.</p></div>
+    <div><b>Never pass off a recorded step</b><p>Anything that ran outside the kernel is a recorded cell, tagged and styled as such.</p></div>
+    <div><b>Revise, don't append</b><p>A wrong finding is edited where it stands, with its old text kept in metadata, so the notebook reads in order.</p></div>
+    <div><b>The human is in the same document</b><p>You can watch, add a cell, or change one. The agent notices and works from what is there now.</p></div>
+    <div><b>Ends reproducible</b><p>A session ends with restart and run all. If it doesn't reproduce, the agent says so before it says it is done.</p></div>
+    <div><b>Configuration, not a harness</b><p>Plugin, skill, MCP server and hooks for an agent you already run. Swap the agent, keep the notebook.</p></div>
+  </div>
+</section>
+
+<!-- ============ DESIGN FICTION: THE SESSION ============ -->
+<section id="session" aria-labelledby="session-h">
+  <header>
+    <span class="eyebrow">Design fiction · one afternoon</span>
+    <h2 id="session-h">A session: why does the interrupt test flake?</h2>
+  </header>
+  <div class="prose" style="margin-bottom:26px">
+    <p>Thomas has a hunch that cdp-kernel's interrupt test has been flaky in CI since late September. He opens Claude Code in the repo, with ganymede-ui open beside it. The left column is the conversation, including the tool calls Claude Code shows; the middle is what changed in the notebook at that moment; the notes underneath say what each step depends on. The CI numbers are illustrative, not cdp-kernel's real history.</p>
+  </div>
+
+  <div class="session-head" aria-hidden="true"><span>Time</span><span>Conversation</span><span>Notebook (live in ganymede-ui)</span></div>
+
+  <!-- M1 -->
+  <div class="moment">
+    <div class="t"><b>14:02</b><span>open</span></div>
+    <div class="convo">
+      <div class="msg human"><span class="who">Thomas</span><p>The interrupt test has felt flaky since late September. Dig into the CI history with me and keep a journal.</p></div>
+      <div class="tool"><span class="name">Skill</span>(ganymede-journal:journal)<span class="ret">loaded: journaling conventions</span></div>
+      <div class="tool"><span class="name">ganymede · notebook_open</span>(path: "journal/2026-10-31-interrupt-flake.ipynb", kernel: "cdp-node", title: "Why does the interrupt test flake?")<span class="ret">created · cdp-node idle · 1 cell</span></div>
+      <div class="msg agent"><span class="who">Claude</span><p>It's open in ganymede-ui. I wrote the goal into the first cell; change it if I have the question wrong.</p></div>
+    </div>
+    <div class="nbcol">
+      <div class="nb">
+        <div class="cell new"><div class="gut"><span class="prov n">note</span></div><div class="body"><h4>Why does the interrupt test flake?</h4><div class="md"><p><b>Goal.</b> Find when the <code>interrupt keeps state</code> e2e test started failing in CI, and what changed then.</p><p class="mono" style="font-size:12px;color:var(--muted)">31 Oct 2026 · Thomas with Claude · kernel cdp-node (TypeScript)</p></div></div></div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="note"><span class="chip today">Works today</span>The skill loads from its description when the request matches, or by name. Claude Code shows the MCP call in the transcript.</div>
+      <div class="note"><span class="chip plan">Planned · #245</span><code>notebook_open</code> with a title cell. Today the same step is <code>nb create</code> plus <code>nb cell add</code> through nb-cli's skill.</div>
+      <div class="note"><span class="chip plan">Planned · #243</span>Seeing the cell appear live needs document rooms. Today ganymede-ui shows it after a reload.</div>
+    </div>
+  </div>
+
+  <!-- M2 -->
+  <div class="moment">
+    <div class="t"><b>14:04</b><span>fetch</span></div>
+    <div class="convo">
+      <div class="msg agent"><span class="who">Claude</span><p>The run history needs your GitHub credentials, so I'll fetch it with <code>gh</code> in the shell and record that step.</p></div>
+      <div class="tool"><span class="name">Bash</span>(gh run list -w ci.yml -L 450 --json databaseId,createdAt,headSha,conclusion,jobs &gt; runs.json)<span class="ret">(no output)</span></div>
+      <div class="tool"><span class="name">ganymede · cell_add</span>(mode: "recorded", source: "…")<span class="ret">cell 3f9c · recorded</span></div>
+    </div>
+    <div class="nbcol">
+      <div class="nb">
+        <div class="cell"><div class="gut"><span class="prov n">note</span></div><div class="body"><h4 style="font-size:15px;color:var(--muted)">Why does the interrupt test flake?</h4></div></div>
+        <div class="cell new"><div class="gut"><span class="prov r">rec</span></div><div class="body"><div class="recorded"><span class="lbl">Recorded · ran in the shell, not in this kernel</span><div class="src"><pre><code>$ gh run list -w ci.yml -L 450 \
+    --json databaseId,createdAt,headSha,conclusion,jobs &gt; runs.json</code></pre></div><p style="font-size:13px">Wrote <code>runs.json</code>: 450 runs, 31 Aug to 31 Oct.</p></div></div></div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="note"><span class="chip today">Works today</span>Bash with the user's own <code>gh</code> login. Credentials stay out of the notebook.</div>
+      <div class="note"><span class="chip plan">Planned · #239, #245</span>Recorded cells: Markdown with a fenced block, tagged <code>metadata.ganymede.agent.mode = "recorded"</code>.</div>
+      <div class="note"><span class="chip prop">Proposed here</span>A <code>PostToolUse</code> hook matched on <code>Bash</code> adds the recorded cell itself, so the record doesn't depend on the model remembering.</div>
+    </div>
+  </div>
+
+  <!-- M3 -->
+  <div class="moment">
+    <div class="t"><b>14:05</b><span>probe</span></div>
+    <div class="convo">
+      <div class="tool scratch"><span class="name">ganymede · cell_run</span>(record: false, source: "const r = JSON.parse(await readFile('runs.json','utf8')); Object.keys(r[0]); r[0].jobs.map(j =&gt; j.name)")<span class="ret">[ 'databaseId', 'createdAt', 'headSha', 'conclusion', 'jobs' ]
+[ 'check', 'unit (node 24)', 'e2e (ubuntu-24.04)', 'e2e (macos)' … ]</span></div>
+      <div class="msg agent"><span class="who">Claude</span><p>Jobs are per runner, and test results aren't in the run JSON. I'll pull the e2e job logs' test summary for the interrupt test, then load it all.</p></div>
+    </div>
+    <div class="nbcol">
+      <div class="empty-nb">No change. A scratch run uses the notebook's kernel and its state but adds no cell.</div>
+    </div>
+    <div class="notes">
+      <div class="note"><span class="chip plan">Planned · #245</span><code>record: false</code>. Scratch runs leave no trace in v1, by decision on #239.</div>
+      <div class="note"><span class="chip today">Works today</span>With nb-cli there is no scratch mode; the agent adds a cell and deletes it, or probes in <code>node -e</code>, which doesn't share the kernel's state.</div>
+    </div>
+  </div>
+
+  <!-- M4 -->
+  <div class="moment">
+    <div class="t"><b>14:07</b><span>section 1</span></div>
+    <div class="convo">
+      <div class="tool"><span class="name">ganymede · cell_add</span>(markdown: "## 1. How often does it fail, by week?…")</div>
+      <div class="tool"><span class="name">ganymede · cell_run</span>(source: "import pl from \"npm:nodejs-polars@0.18.0\" …")<span class="ret">@@output {"output_type":"execute_result"}
+shape: (9, 3) week · runs · failed …  (9 rows, text/plain)</span></div>
+    </div>
+    <div class="nbcol">
+      <div class="nb">
+        <div class="cell new"><div class="gut"><span class="prov n">note</span></div><div class="body"><h4>1. How often does it fail, by week?</h4><div class="md"><p>One row per CI run with the interrupt test's result, from the e2e jobs' test summaries. A weekly rate shows whether "since late September" is real.</p></div></div></div>
+        <div class="cell new"><div class="gut"><span>[3]</span><span class="prov e">exec</span></div><div class="body"><div class="src"><pre><code><span class="c-k">import</span> pl <span class="c-k">from</span> <span class="c-s">"npm:nodejs-polars@0.18.0"</span>;
+<span class="c-k">import</span> { tests } <span class="c-k">from</span> <span class="c-s">"./ci.ts"</span>;   <span class="c-c">// joins runs.json with the test summaries</span>
+
+<span class="c-k">const</span> df = pl.DataFrame(<span class="c-k">await</span> tests(<span class="c-s">"interrupt keeps state"</span>));
+<span class="c-k">const</span> weekly = df
+  .groupBy(<span class="c-s">"week"</span>)
+  .agg(pl.col(<span class="c-s">"failed"</span>).count().alias(<span class="c-s">"runs"</span>),
+       pl.col(<span class="c-s">"failed"</span>).sum().alias(<span class="c-s">"failed"</span>))
+  .sort(<span class="c-s">"week"</span>);
+weekly;</code></pre></div>
+        <div class="out scroll"><table><thead><tr><th>week</th><th class="n">runs</th><th class="n">failed</th></tr></thead><tbody>
+          <tr><td colspan="3" style="color:var(--muted)">… 3 earlier rows</td></tr>
+          <tr><td>2026-09-21</td><td class="n">96</td><td class="n">1</td></tr>
+          <tr><td>2026-09-28</td><td class="n">97</td><td class="n hot">7</td></tr>
+          <tr><td>2026-10-05</td><td class="n">101</td><td class="n hot">8</td></tr>
+          <tr><td colspan="3" style="color:var(--muted)">… 3 later rows</td></tr>
+        </tbody></table></div></div></div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="note"><span class="chip today">Works today</span>cdp-kernel runs TypeScript with <code>npm:</code> imports; its own MoMA example uses <code>nodejs-polars@0.18.0</code>. With <code>ganymede serve</code>, separate <code>nb execute</code> calls share one kernel (validated 31 Oct, #240).</div>
+      <div class="note"><span class="chip today">Works today</span>The reply to the model is nb-cli's <code>@@cell</code>/<code>@@output</code> text, bounded at 4,000 characters, with the rest in a file. <code>ganymede mcp</code> keeps that format (#245).</div>
+      <div class="note"><span class="chip today">Works today</span>A helper module (<code>ci.ts</code>) is an ordinary file the agent writes with its Edit tool and the kernel imports. Code reused across cells goes there.</div>
+    </div>
+  </div>
+
+  <!-- M5 -->
+  <div class="moment">
+    <div class="t"><b>14:09</b><span>chart</span></div>
+    <div class="convo">
+      <div class="tool"><span class="name">ganymede · cell_run</span>(source: "Plot.barY(weekly, …).plot({ document })")<span class="ret">@@output {"output_type":"display_data","mime":"image/svg+xml"}
+[image 1280×520, rendered from SVG]</span></div>
+      <div class="msg agent"><span class="who">Claude</span><p>The chart agrees with the table: about 1% of runs fail until the week of 28 September, then 7 to 8% every week since. Nothing gradual about it, so something changed that week. I've written that down as the finding, cause unknown.</p></div>
+    </div>
+    <div class="nbcol">
+      <div class="nb">
+        <div class="cell new"><div class="gut"><span>[4]</span><span class="prov e">exec</span></div><div class="body"><div class="src"><pre><code><span class="c-k">import</span> * <span class="c-k">as</span> Plot <span class="c-k">from</span> <span class="c-s">"npm:@observablehq/plot"</span>;
+Plot.barY(weekly.toRecords(), { x: <span class="c-s">"week"</span>, y: d =&gt; d.failed / d.runs })
+  .plot({ document, y: { percent: <span class="c-k">true</span> } });</code></pre></div>
+          <div class="out scroll">
+            <svg viewBox="0 0 640 250" width="100%" style="min-width:420px;display:block" role="img" aria-label="Bar chart of the weekly failure rate: about 1 percent from 31 August to 21 September, then 7 to 8 percent from 28 September to 26 October.">
+              <g stroke="var(--grid)" stroke-width="1">
+                <line x1="48" x2="620" y1="210" y2="210"/><line x1="48" x2="620" y1="172" y2="172"/><line x1="48" x2="620" y1="134" y2="134"/><line x1="48" x2="620" y1="96" y2="96"/><line x1="48" x2="620" y1="58" y2="58"/><line x1="48" x2="620" y1="20" y2="20"/>
+              </g>
+              <g fill="var(--muted)" font-size="11" text-anchor="end">
+                <text x="40" y="214">0%</text><text x="40" y="176">2%</text><text x="40" y="138">4%</text><text x="40" y="100">6%</text><text x="40" y="62">8%</text><text x="40" y="24">10%</text>
+              </g>
+              <g fill="var(--bar-dim)">
+                <rect x="59.75" y="189.1" width="40" height="20.9"/><rect x="123.25" y="194.8" width="40" height="15.2"/><rect x="186.75" y="183.4" width="40" height="26.6"/><rect x="250.25" y="191" width="40" height="19"/>
+              </g>
+              <g fill="var(--bar)">
+                <rect x="313.75" y="73.2" width="40" height="136.8"/><rect x="377.25" y="59.9" width="40" height="150.1"/><rect x="440.75" y="50.4" width="40" height="159.6"/><rect x="504.25" y="65.6" width="40" height="144.4"/><rect x="567.75" y="56.1" width="40" height="153.9"/>
+              </g>
+              <g fill="var(--muted)" font-size="10.5" text-anchor="middle">
+                <text x="79.75" y="228">31 Aug</text><text x="143.25" y="228">7 Sep</text><text x="206.75" y="228">14 Sep</text><text x="270.25" y="228">21 Sep</text><text x="333.75" y="228">28 Sep</text><text x="397.25" y="228">5 Oct</text><text x="460.75" y="228">12 Oct</text><text x="524.25" y="228">19 Oct</text><text x="587.75" y="228">26 Oct</text>
+              </g>
+              <text x="48" y="246" fill="var(--muted)" font-size="10.5">week of · share of CI runs where the interrupt test failed (illustrative)</text>
+            </svg>
+          </div>
+        </div></div>
+        <div class="cell new"><div class="gut"><span class="prov n">note</span></div><div class="body"><div class="finding"><b>Finding 1</b>The rate steps from about 1% to 7 to 8% in the week of 28 September and stays there. Cause unknown.</div></div></div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="note"><span class="chip today">Works today</span>Claude Code shows PNG, JPEG, GIF and WebP in MCP tool results to the model, and its Read tool shows image files. That is how Claude reads the chart instead of guessing from numbers.</div>
+      <div class="note"><span class="chip plan">Planned · #245</span>PNG and JPEG outputs returned as MCP image content when the client opts in.</div>
+      <div class="note"><span class="chip prop">Proposed here</span>Plot and Vega-Lite produce SVG, which MCP image content can't carry. Ganymede rasterizes <code>image/svg+xml</code> to PNG for the reply only; the notebook keeps the SVG.</div>
+    </div>
+  </div>
+
+  <!-- M6 -->
+  <div class="moment">
+    <div class="t"><b>14:12</b><span>human</span></div>
+    <div class="convo">
+      <div class="msg human"><span class="who">Thomas, in ganymede-ui</span><p>Types a cell under the finding instead of answering in chat.</p></div>
+      <div class="msg human"><span class="who">Thomas, in chat</span><p>Left you a note in the notebook.</p></div>
+      <div class="tool"><span class="name">hook · UserPromptSubmit</span><span class="ret">additionalContext: notebook changed since your last read: cell 7a1e added by a person (no agent metadata)</span></div>
+      <div class="tool"><span class="name">ganymede · notebook_read</span>(since: "4c02")<span class="ret">@@cell {"id":"7a1e","cell_type":"markdown"} …</span></div>
+      <div class="msg agent"><span class="who">Claude</span><p>Good lead. Before testing it I'll split the failures by runner as well as Node version, since the e2e job runs on Ubuntu and macOS and the bump touched both.</p></div>
+    </div>
+    <div class="nbcol">
+      <div class="nb">
+        <div class="cell"><div class="gut"><span class="prov n">note</span></div><div class="body"><div class="finding"><b>Finding 1</b>The rate steps from about 1% to 7 to 8% in the week of 28 September and stays there. Cause unknown.</div></div></div>
+        <div class="cell human-cell"><div class="gut"><span class="prov h">TL</span></div><div class="body"><div class="md"><p>We moved CI to Node 24.10 around 2 Oct. Check that first?</p></div></div></div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="note"><span class="chip plan">Planned · #243</span>One document, edited by both. The agent's tools and ganymede-ui share a <code>yrs</code> room, and JSD's <code>source_hash</code> check stops a stale run of a cell someone just changed.</div>
+      <div class="note"><span class="chip prop">Proposed here</span>A <code>UserPromptSubmit</code> hook asks Ganymede what changed since the agent's last read and adds it as context. Hooks can add context today; the "changes since" query is new.</div>
+      <div class="note"><span class="chip prop">Proposed here</span>Alternative: a plugin monitor, a background command whose output reaches Claude, that streams room changes as they happen.</div>
+    </div>
+  </div>
+
+  <!-- M7 -->
+  <div class="moment">
+    <div class="t"><b>14:15</b><span>section 2</span></div>
+    <div class="convo">
+      <div class="tool"><span class="name">ganymede · cell_add</span>(markdown: "## 2. Node version or runner?…")</div>
+      <div class="tool"><span class="name">ganymede · cell_run</span>(source: "df.groupBy([\"runner\", \"node\"]) …")<span class="ret">shape: (4, 4) …</span></div>
+      <div class="msg agent"><span class="who">Claude</span><p>It isn't Node. Ubuntu runs are at 1% on both Node versions. macOS runs jumped to about 16% on 24.9 too, in the days before the Node bump. The <code>macos-latest</code> label moved to a new image that week, which fits better.</p></div>
+    </div>
+    <div class="nbcol">
+      <div class="nb">
+        <div class="cell new"><div class="gut"><span class="prov n">note</span></div><div class="body"><h4>2. Node version or runner?</h4><div class="md"><p>Thomas's note: Node 24.10 landed around 2 October. Split the post-change weeks by runner and Node version; if Node is the cause, the rate should follow the version on both runners.</p></div></div></div>
+        <div class="cell new"><div class="gut"><span>[6]</span><span class="prov e">exec</span></div><div class="body"><div class="src"><pre><code>df.filter(pl.col(<span class="c-s">"week"</span>).gtEq(<span class="c-s">"2026-09-28"</span>))
+  .groupBy([<span class="c-s">"runner"</span>, <span class="c-s">"node"</span>])
+  .agg(pl.col(<span class="c-s">"failed"</span>).count().alias(<span class="c-s">"runs"</span>),
+       pl.col(<span class="c-s">"failed"</span>).mean().alias(<span class="c-s">"rate"</span>));</code></pre></div>
+          <div class="out scroll"><table><thead><tr><th>runner</th><th>node</th><th class="n">runs</th><th class="n">rate</th></tr></thead><tbody>
+            <tr><td>ubuntu-24.04</td><td>24.9</td><td class="n">31</td><td class="n">0.0%</td></tr>
+            <tr><td>ubuntu-24.04</td><td>24.10</td><td class="n">219</td><td class="n">0.9%</td></tr>
+            <tr><td>macos-latest</td><td>24.9</td><td class="n">31</td><td class="n hot">16.1%</td></tr>
+            <tr><td>macos-latest</td><td>24.10</td><td class="n">219</td><td class="n hot">15.5%</td></tr>
+          </tbody></table></div>
+        </div></div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="note"><span class="chip today">Works today</span>The agent picks up the human's cell as an input and says so in the narration. That is conventions in the skill, nothing more.</div>
+      <div class="note"><span class="chip plan">Planned · #245</span>Cells by stable id, so the human's insertion doesn't shift what the agent refers to.</div>
+    </div>
+  </div>
+
+  <!-- M8 -->
+  <div class="moment">
+    <div class="t"><b>14:18</b><span>revise</span></div>
+    <div class="convo">
+      <div class="tool"><span class="name">ganymede · cell_edit</span>(id: "4c02", source: "**Finding 1** …")<span class="ret">edited · previous text kept in metadata.ganymede.agent.history</span></div>
+      <div class="msg agent"><span class="who">Claude</span><p>I've revised finding 1 where it stands rather than adding a correction at the bottom, and pointed it at section 2.</p></div>
+    </div>
+    <div class="nbcol">
+      <div class="nb">
+        <div class="cell new"><div class="gut"><span class="prov n">note</span><span style="font-size:10px">rev 2</span></div><div class="body"><div class="finding"><b>Finding 1</b>The rate steps from about 1% to 7 to 8% in the week of 28 September and stays there. <del>Cause unknown.</del> <ins>All of the increase is on macOS runners, on both Node versions (section 2). The <code>macos-latest</code> image change that week is the lead; Node 24.10 is ruled out.</ins></div></div></div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="note"><span class="chip plan">Planned · #245</span><code>cell_edit</code> by id. "Edit and re-run a broken step instead of appending a corrected copy" is a convention in #241.</div>
+      <div class="note"><span class="chip prop">Proposed here</span>Keep superseded text in <code>metadata.ganymede.agent.history</code>, so a revision is visible (ganymede-ui can show "rev 2") without cluttering the page.</div>
+    </div>
+  </div>
+
+  <!-- M9 -->
+  <div class="moment">
+    <div class="t"><b>14:24</b><span>close</span></div>
+    <div class="convo">
+      <div class="msg human"><span class="who">Thomas</span><p>Great. Wrap it up and draft an issue.</p></div>
+      <div class="tool"><span class="name">ganymede · notebook_run_all</span>()<span class="ret">restarted cdp-node · 10 cells · 0 errors · 6.4 s</span></div>
+      <div class="tool"><span class="name">ganymede · cell_add</span>(after: "title", markdown: "**Summary** …")</div>
+      <div class="tool"><span class="name">Agent</span>(journal-reviewer)<span class="ret">read cold: section 2 doesn't say how runner was derived from the job name. Added one sentence.</span></div>
+      <div class="msg agent"><span class="who">Claude</span><p>It reproduces from a clean kernel. The summary is at the top, and the issue draft links to the notebook. Want me to file it?</p></div>
+    </div>
+    <div class="nbcol">
+      <div class="nb">
+        <div class="cell"><div class="gut"><span class="prov n">note</span></div><div class="body"><h4 style="font-size:15px">Why does the interrupt test flake?</h4></div></div>
+        <div class="cell new"><div class="gut"><span class="prov n">note</span></div><div class="body"><div class="md"><p><b>Summary.</b> Since 28 Sep the test fails in about 16% of macOS runs and 1% of Ubuntu runs. Node 24.10 is ruled out; the <code>macos-latest</code> image change is the lead.</p></div></div></div>
+        <div class="cell"><div class="gut"></div><div class="body"><p class="mono" style="font-size:12px;color:var(--ok)">✓ restart and run all · 10 cells · 0 errors · 14:24</p></div></div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="note"><span class="chip plan">Planned · #245</span><code>notebook_run_all</code>. Today: <code>ganymede execute notebook.ipynb</code> in Bash, which matches <code>jupyter execute</code>.</div>
+      <div class="note"><span class="chip prop">Proposed here</span>A <code>Stop</code> hook blocks "done" while the notebook has edits since its last clean run-all. Stop hooks can block today.</div>
+      <div class="note"><span class="chip today">Works today</span>A reviewer subagent has its own context, sees only the notebook, and returns a summary. It reads the journal the way a stranger would.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ THE FINISHED JOURNAL ============ -->
+<section id="journal" aria-labelledby="journal-h">
+  <header>
+    <span class="eyebrow">The artifact · what's left at the end</span>
+    <h2 id="journal-h">The journal, as a lab notebook</h2>
+  </header>
+  <div class="prose" style="margin-bottom:24px">
+    <p>Same <code>.ipynb</code>, shown in a proposed journal view. Every element below comes from data the notebook already carries or that this design adds to cell metadata, so JupyterLab and VS Code still open it as an ordinary notebook. Code cells are folded to one line here; a reader expands them.</p>
+  </div>
+
+  <article class="journal" aria-label="Rendered journal">
+    <div class="jhead">
+      <span class="eyebrow">Journal · cdp-kernel · entry 2026-10-31</span>
+      <h3>Why does the interrupt test flake?</h3>
+      <div class="jmeta">
+        <div><span>People</span>Thomas Lockney, Claude</div>
+        <div><span>Kernel</span>cdp-node · TypeScript</div>
+        <div><span>Time</span>14:02 to 14:24</div>
+        <div><span>Cells</span>3 executed · 1 recorded · 1 human</div>
+      </div>
+      <span class="stamp">✓ Reproduced from a clean kernel · 10 cells · 6.4 s</span>
+    </div>
+    <div class="nb">
+      <div class="cell"><div class="gut"></div><div class="body">
+        <div class="summary-box"><b class="eyebrow" style="color:var(--ink)">Summary</b><ol>
+          <li>Since the week of 28 September the interrupt test fails in about 16% of macOS runs and 1% of Ubuntu runs; before, about 1% on both.</li>
+          <li>Node 24.10 is ruled out: macOS failed at the same rate on 24.9.</li>
+          <li>Lead: the <code>macos-latest</code> runner image changed that week. Next: pin <code>macos-14</code> for a week and compare.</li>
+        </ol></div>
+      </div></div>
+      <div class="cell"><div class="gut"><span class="prov r">rec</span></div><div class="body"><div class="recorded"><span class="lbl">Recorded · shell · 14:04</span><pre><code>$ gh run list -w ci.yml -L 450 --json … &gt; runs.json</code></pre></div></div></div>
+      <div class="cell"><div class="gut"><span class="prov n">note</span></div><div class="body"><h5>1. How often does it fail, by week?</h5><div class="md"><p>One row per CI run with the interrupt test's result. A weekly rate shows whether "since late September" is real.</p></div></div></div>
+      <div class="cell"><div class="gut"><span>[1]</span><span class="prov e">exec</span></div><div class="body"><p class="mono" style="font-size:12px;color:var(--muted)">▸ weekly runs and failures · nodejs-polars · 9 rows</p></div></div>
+      <div class="cell"><div class="gut"><span>[2]</span><span class="prov e">exec</span></div><div class="body"><div class="scroll">
+        <svg viewBox="0 0 640 250" width="100%" style="min-width:420px;display:block" role="img" aria-label="Weekly failure rate with an annotation at 28 September marking the macOS runner image change.">
+          <g stroke="var(--grid)" stroke-width="1">
+            <line x1="48" x2="620" y1="210" y2="210"/><line x1="48" x2="620" y1="172" y2="172"/><line x1="48" x2="620" y1="134" y2="134"/><line x1="48" x2="620" y1="96" y2="96"/><line x1="48" x2="620" y1="58" y2="58"/><line x1="48" x2="620" y1="20" y2="20"/>
+          </g>
+          <g fill="var(--muted)" font-size="11" text-anchor="end">
+            <text x="40" y="214">0%</text><text x="40" y="176">2%</text><text x="40" y="138">4%</text><text x="40" y="100">6%</text><text x="40" y="62">8%</text><text x="40" y="24">10%</text>
+          </g>
+          <g fill="var(--bar-dim)">
+            <rect x="59.75" y="189.1" width="40" height="20.9"/><rect x="123.25" y="194.8" width="40" height="15.2"/><rect x="186.75" y="183.4" width="40" height="26.6"/><rect x="250.25" y="191" width="40" height="19"/>
+          </g>
+          <g fill="var(--bar)">
+            <rect x="313.75" y="73.2" width="40" height="136.8"/><rect x="377.25" y="59.9" width="40" height="150.1"/><rect x="440.75" y="50.4" width="40" height="159.6"/><rect x="504.25" y="65.6" width="40" height="144.4"/><rect x="567.75" y="56.1" width="40" height="153.9"/>
+          </g>
+          <line x1="302" x2="302" y1="20" y2="210" stroke="var(--prop)" stroke-width="1.5" stroke-dasharray="4 3"/>
+          <text x="296" y="34" fill="var(--prop)" font-size="11" text-anchor="end">macos-latest image change →</text>
+          <g fill="var(--muted)" font-size="10.5" text-anchor="middle">
+            <text x="79.75" y="228">31 Aug</text><text x="143.25" y="228">7 Sep</text><text x="206.75" y="228">14 Sep</text><text x="270.25" y="228">21 Sep</text><text x="333.75" y="228">28 Sep</text><text x="397.25" y="228">5 Oct</text><text x="460.75" y="228">12 Oct</text><text x="524.25" y="228">19 Oct</text><text x="587.75" y="228">26 Oct</text>
+          </g>
+          <text x="48" y="246" fill="var(--muted)" font-size="10.5">week of · share of CI runs where the interrupt test failed (illustrative)</text>
+        </svg></div></div></div>
+      <div class="cell"><div class="gut"><span class="prov n">note</span><span style="font-size:10px">rev 2</span></div><div class="body"><div class="finding"><b>Finding 1</b>The rate steps from about 1% to 7 to 8% in the week of 28 September. All of the increase is on macOS runners, on both Node versions (section 2).</div></div></div>
+      <div class="cell"><div class="gut"><span class="prov h">TL</span></div><div class="body"><div class="md"><p>We moved CI to Node 24.10 around 2 Oct. Check that first?</p></div></div></div>
+      <div class="cell"><div class="gut"><span class="prov n">note</span></div><div class="body"><h5>2. Node version or runner?</h5><div class="md"><p>If Node is the cause, the rate should follow the version on both runners. The runner comes from the e2e job's name.</p></div></div></div>
+      <div class="cell"><div class="gut"><span>[3]</span><span class="prov e">exec</span></div><div class="body"><div class="scroll"><table><thead><tr><th>runner</th><th>node</th><th class="n">runs</th><th class="n">rate</th></tr></thead><tbody>
+        <tr><td>ubuntu-24.04</td><td>24.9</td><td class="n">31</td><td class="n">0.0%</td></tr>
+        <tr><td>ubuntu-24.04</td><td>24.10</td><td class="n">219</td><td class="n">0.9%</td></tr>
+        <tr><td>macos-latest</td><td>24.9</td><td class="n">31</td><td class="n hot">16.1%</td></tr>
+        <tr><td>macos-latest</td><td>24.10</td><td class="n">219</td><td class="n hot">15.5%</td></tr>
+      </tbody></table></div></div></div>
+    </div>
+  </article>
+
+  <div class="annot">
+    <div><b>Header and stamp</b>Title cell, kernelspec, timestamps from cell metadata, and the last clean run-all. <span class="chip prop">Proposed here</span></div>
+    <div><b>Provenance gutter</b><code>exec</code>, <code>rec</code>, <code>note</code> from <code>metadata.ganymede.agent.mode</code>; cells without it are a person's. <span class="chip plan">Planned · #245</span> for the metadata, <span class="chip prop">Proposed here</span> for the view.</div>
+    <div><b>Revisions</b>"rev 2" with the earlier text on hover, from the history field. <span class="chip prop">Proposed here</span></div>
+    <div><b>Where it renders</b>A read-only journal view in ganymede-ui, and a static HTML export of it for sharing. Ganymede itself has no nbconvert, by design, so this belongs in the UI. <span class="chip prop">Proposed here</span></div>
+  </div>
+</section>
+
+<!-- ============ THE KIT ============ -->
+<section id="kit" aria-labelledby="kit-h">
+  <header>
+    <span class="eyebrow">The drop-in kit</span>
+    <h2 id="kit-h">What you install, and what each piece does</h2>
+  </header>
+  <div class="prose" style="margin-bottom:24px">
+    <p>One Claude Code plugin carries the whole mode. Claude Code plugins can bundle skills, subagents, hooks, MCP servers, monitors and executables, and install at user or project scope, so a repo can commit "this project journals" in <code>.claude/settings.json</code>. The skill follows the Agent Skills format, and the MCP server is plain MCP, so the two portable pieces also work in other agents. The hooks are Claude Code's.</p>
+  </div>
+
+  <div class="kit">
+    <div class="panel">
+      <div class="ph"><span>ganymede-journal/ · the plugin</span><span class="chip prop">Proposed here</span></div>
+      <div class="tree">
+        <div>.claude-plugin/plugin.json</div>
+        <div>.mcp.json <span class="d">runs <code>ganymede mcp</code> over stdio. It finds the server for this folder or starts one (#245).</span></div>
+        <div>skills/journal/SKILL.md <span class="d">the conventions, below</span></div>
+        <div>skills/journal/typescript.md <span class="d">cdp-kernel's display API, Polars and Plot idioms</span></div>
+        <div>agents/journal-reviewer.md <span class="d">reads the notebook cold, runs it, flags gaps</span></div>
+        <div>hooks/hooks.json <span class="d">four hooks, below</span></div>
+        <div>hooks/*.ts <span class="d">run by Node 24, which strips types</span></div>
+      </div>
+      <div class="pb" style="border-top:1px solid var(--rule)">
+        <p><b>Hooks</b></p>
+        <table>
+          <tbody>
+            <tr><td class="mono">SessionStart</td><td>Report the running server and any open journal, as added context.</td></tr>
+            <tr><td class="mono">UserPromptSubmit</td><td>Add "cells a person changed since your last read" as context.</td></tr>
+            <tr><td class="mono">PostToolUse · Bash</td><td>Write the command and a bounded output as a recorded cell, when a journal is open.</td></tr>
+            <tr><td class="mono">Stop</td><td>Block ending while the journal has edits since its last clean run-all.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph"><span>skills/journal/SKILL.md</span><span class="chip prop">Proposed here</span></div>
+<pre><code><span class="c-c">---
+name: journal
+description: Keep a Jupyter notebook as the record of a data
+  exploration while doing it. Use when the user asks to explore,
+  analyze or chart data, or says "journal" or "keep a notebook".
+---</span>
+Run analysis code only through the ganymede tools, on the
+notebook's kernel. Never write .ipynb JSON with Read/Write/Edit.
+
+1. Open the notebook with a title cell: the question, the date,
+   who is working, the kernel. Default kernel: cdp-node.
+2. One question per section. Before code, a Markdown cell says
+   why. After it, a short finding.
+3. Probe with cell_run(record: false). Probes leave no trace.
+4. Steps outside the kernel (gh, curl, files you wrote) go in
+   as recorded cells. Never present them as kernel output.
+5. Small cells that can be re-run. Shared helpers go in a .ts
+   module next to the notebook.
+6. When a finding turns out wrong, edit it where it stands
+   and re-run what it depends on. Don't append a correction.
+7. A cell without agent metadata was written by a person.
+   Read it as input and say how you used it.
+8. Charts: Observable Plot or Vega-Lite. Look at the image
+   that comes back before writing the finding.
+9. Finish with notebook_run_all, then a summary at the top.</code></pre>
+    </div>
+  </div>
+
+  <div class="kit" style="margin-top:24px">
+    <div class="panel">
+      <div class="ph"><span>Today, with nothing new built</span><span class="chip today">Works today</span></div>
+<pre><code>$ ganymede serve --root-dir . &amp;          <span class="c-c"># writes jpserver-&lt;pid&gt;.json</span>
+$ nb connect --server http://127.0.0.1:8888 --token $TOKEN
+$ npx skills install jupyter-ai-contrib/nb-cli</code></pre>
+      <div class="pb" style="border-top:1px solid var(--rule)">
+        <p>nb-cli's skill tells Claude to use <code>nb</code> for every notebook operation. Add the journaling conventions to <code>CLAUDE.md</code> and the core loop works now: kernel state persists across <code>nb execute</code> calls, outputs land in the file, text comes back bounded. Missing until the planned work lands: the live view, scratch runs, images to the model, and cells by stable id while a person edits. nb-cli's own docs only show Python kernels, but the 31 October validation ran it on cdp-kernel.</p>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="ph"><span>The one-time setup, later</span><span class="chip plan">Planned</span> <span class="chip prop">Proposed</span></div>
+<pre><code>$ curl -fsSL https://ganymede-server.com/install.sh | sh
+<span class="c-c"># in Claude Code</span>
+/plugin marketplace add tlockney/ganymede
+/plugin install ganymede-journal@ganymede
+/ganymede:journal why does the interrupt test flake?</code></pre>
+      <div class="pb" style="border-top:1px solid var(--rule)">
+        <p><code>/ganymede:journal</code> is the MCP server's <code>journal</code> prompt (#245); Claude Code lists MCP prompts as slash commands. The marketplace can be the Ganymede repo itself, since a marketplace is a <code>marketplace.json</code> in any git repo.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ARCHITECTURE ============ -->
+<section id="layers" aria-labelledby="layers-h">
+  <header>
+    <span class="eyebrow">How the pieces meet</span>
+    <h2 id="layers-h">Two clients, one document</h2>
+  </header>
+  <figure>
+    <div class="diagram">
+      <svg viewBox="0 0 900 330" width="100%" style="min-width:720px;display:block" role="img" aria-label="Claude Code, with the journal skill, hooks, reviewer subagent and MCP client, calls ganymede mcp, which talks to the Ganymede server's document room. Thomas uses ganymede-ui or JupyterLab, which edits the same room. The room runs cells on the cdp-node kernel and autosaves the notebook file. Bash steps go to the shell and come back as recorded cells.">
+        <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker></defs>
+        <!-- agent -->
+        <rect x="10" y="14" width="260" height="190" rx="4" fill="var(--surface)" stroke="var(--rule)"/>
+        <text x="24" y="38" fill="var(--ink)" font-size="13" font-weight="500">Claude Code</text>
+        <text x="24" y="54" fill="var(--ok)" font-size="10.5">unchanged, as shipped</text>
+        <rect x="24" y="66" width="232" height="28" rx="3" fill="var(--prop-soft)"/><text x="34" y="85" fill="var(--prop)" font-size="11.5">skill: journal conventions</text>
+        <rect x="24" y="100" width="232" height="28" rx="3" fill="var(--prop-soft)"/><text x="34" y="119" fill="var(--prop)" font-size="11.5">hooks: context, record, gate</text>
+        <rect x="24" y="134" width="232" height="28" rx="3" fill="var(--prop-soft)"/><text x="34" y="153" fill="var(--prop)" font-size="11.5">subagent: journal-reviewer</text>
+        <rect x="24" y="168" width="232" height="28" rx="3" fill="var(--ok-soft)"/><text x="34" y="187" fill="var(--ok)" font-size="11.5">MCP client · Bash · Read</text>
+        <!-- human -->
+        <rect x="10" y="236" width="260" height="76" rx="4" fill="var(--surface)" stroke="var(--rule)"/>
+        <text x="24" y="260" fill="var(--human)" font-size="13" font-weight="500">Thomas</text>
+        <text x="24" y="280" fill="var(--ink)" font-size="11.5">ganymede-ui or JupyterLab</text>
+        <text x="24" y="298" fill="var(--muted)" font-size="10.5">watching, adding cells</text>
+        <!-- mcp -->
+        <rect x="320" y="150" width="170" height="54" rx="4" fill="var(--plan-soft)" stroke="var(--plan)"/>
+        <text x="405" y="173" fill="var(--plan)" font-size="12" text-anchor="middle">ganymede mcp</text>
+        <text x="405" y="191" fill="var(--plan)" font-size="10.5" text-anchor="middle">stdio · #245</text>
+        <!-- shell -->
+        <rect x="320" y="40" width="170" height="54" rx="4" fill="var(--surface)" stroke="var(--rule)" stroke-dasharray="4 3"/>
+        <text x="405" y="63" fill="var(--ink)" font-size="12" text-anchor="middle">shell</text>
+        <text x="405" y="81" fill="var(--muted)" font-size="10.5" text-anchor="middle">gh, curl, nb-cli</text>
+        <!-- server -->
+        <rect x="540" y="14" width="350" height="298" rx="6" fill="var(--accent-soft)" stroke="var(--accent)"/>
+        <text x="556" y="38" fill="var(--accent)" font-size="13" font-weight="500">ganymede serve</text>
+        <rect x="560" y="120" width="190" height="100" rx="4" fill="var(--surface)" stroke="var(--plan)" stroke-width="1.5"/>
+        <text x="655" y="152" fill="var(--ink)" font-size="12.5" text-anchor="middle">document room</text>
+        <text x="655" y="170" fill="var(--muted)" font-size="10.5" text-anchor="middle">yrs, one per notebook</text>
+        <text x="655" y="186" fill="var(--muted)" font-size="10.5" text-anchor="middle">writes outputs itself</text>
+        <text x="655" y="206" fill="var(--plan)" font-size="10.5" text-anchor="middle">#243 · #244</text>
+        <rect x="770" y="120" width="106" height="44" rx="4" fill="var(--surface)" stroke="var(--rule)"/>
+        <text x="823" y="139" fill="var(--ink)" font-size="11.5" text-anchor="middle">kernel</text>
+        <text x="823" y="155" fill="var(--muted)" font-size="10.5" text-anchor="middle">cdp-node</text>
+        <rect x="770" y="250" width="106" height="44" rx="4" fill="var(--surface)" stroke="var(--rule)" stroke-dasharray="4 3"/>
+        <text x="823" y="270" fill="var(--ink)" font-size="11.5" text-anchor="middle">.ipynb</text>
+        <text x="823" y="286" fill="var(--muted)" font-size="10.5" text-anchor="middle">on disk</text>
+        <rect x="560" y="56" width="190" height="44" rx="4" fill="var(--surface)" stroke="var(--rule)"/>
+        <text x="655" y="75" fill="var(--ink)" font-size="11.5" text-anchor="middle">Jupyter REST + websocket</text>
+        <text x="655" y="91" fill="var(--ok)" font-size="10.5" text-anchor="middle">today · nb-cli uses this</text>
+        <rect x="560" y="250" width="190" height="44" rx="4" fill="var(--surface)" stroke="var(--rule)"/>
+        <text x="655" y="269" fill="var(--ink)" font-size="11.5" text-anchor="middle">room websocket</text>
+        <text x="655" y="285" fill="var(--muted)" font-size="10.5" text-anchor="middle">jupyter-collaboration shape</text>
+        <!-- arrows -->
+        <g stroke="var(--muted)" stroke-width="1.3" fill="none" marker-end="url(#ah)">
+          <path d="M258,182 C290,182 290,177 318,177"/>
+          <path d="M258,174 C290,150 290,70 318,67"/>
+          <path d="M490,177 C520,177 530,170 558,170"/>
+          <path d="M490,67 C520,67 530,78 558,78"/>
+          <path d="M270,274 C420,274 470,272 558,272"/>
+          <path d="M655,248 L655,222"/>
+          <path d="M752,150 L768,144"/>
+          <path d="M752,200 C790,220 810,230 818,248"/>
+        </g>
+      </svg>
+    </div>
+    <figcaption>Claude Code ships as is; the amber parts are the plugin. The agent and the person edit one room, so neither copies the other's work, and the file on disk follows the room by autosave. Before rooms exist, the same loop runs through nb-cli and the Jupyter REST API at the top, minus the live view.</figcaption>
+  </figure>
+</section>
+
+<!-- ============ GROUNDING ============ -->
+<section id="grounding" aria-labelledby="grounding-h">
+  <header>
+    <span class="eyebrow">Reality check</span>
+    <h2 id="grounding-h">What exists, what Ganymede builds, what's proposed</h2>
+  </header>
+  <div class="grounding scroll">
+    <table>
+      <thead><tr><th>Capability in the story</th><th>Provided by</th><th>Status</th><th>Source</th></tr></thead>
+      <tbody>
+        <tr class="group"><td colspan="4">Agent side: Claude Code as shipped</td></tr>
+        <tr><td>Skills load by description or <code>/name</code>, bundle reference files and scripts</td><td>Claude Code skills (Agent Skills format)</td><td><span class="chip today">Today</span></td><td><a href="https://code.claude.com/docs/en/skills">Skills</a></td></tr>
+        <tr><td>One plugin bundles skills, subagents, hooks, MCP servers, monitors; user or project scope</td><td>Claude Code plugins and marketplaces</td><td><span class="chip today">Today</span></td><td><a href="https://code.claude.com/docs/en/plugins">Plugins</a></td></tr>
+        <tr><td>MCP over stdio and streamable HTTP; <code>.mcp.json</code> per project</td><td>Claude Code MCP client</td><td><span class="chip today">Today</span></td><td><a href="https://code.claude.com/docs/en/mcp">MCP</a></td></tr>
+        <tr><td>Images in MCP tool results reach the model; Read shows image files</td><td>Claude Code</td><td><span class="chip today">Today</span></td><td><a href="https://code.claude.com/docs/en/mcp">MCP</a>, <a href="https://code.claude.com/docs/en/tools-reference">Tools</a></td></tr>
+        <tr><td>MCP prompts as slash commands; resources by <code>@</code>-mention</td><td>Claude Code</td><td><span class="chip today">Today</span></td><td><a href="https://code.claude.com/docs/en/mcp">MCP</a></td></tr>
+        <tr><td>Large tool output written to a file, path returned (25,000-token default limit)</td><td>Claude Code (<code>MAX_MCP_OUTPUT_TOKENS</code>)</td><td><span class="chip today">Today</span></td><td><a href="https://code.claude.com/docs/en/mcp">MCP</a></td></tr>
+        <tr><td>Hooks add context (<code>SessionStart</code>, <code>UserPromptSubmit</code>, <code>PostToolUse</code>) and block (<code>Stop</code>, <code>PreToolUse</code>); matchers on MCP tool names</td><td>Claude Code hooks</td><td><span class="chip today">Today</span></td><td><a href="https://code.claude.com/docs/en/hooks">Hooks</a></td></tr>
+        <tr><td>Reviewer with its own context and tool list</td><td>Claude Code subagents</td><td><span class="chip today">Today</span></td><td><a href="https://code.claude.com/docs/en/sub-agents">Subagents</a></td></tr>
+        <tr><td>MCP tools allow-listed per server or per tool</td><td>Claude Code permissions</td><td><span class="chip today">Today</span></td><td><a href="https://code.claude.com/docs/en/permissions">Permissions</a></td></tr>
+        <tr><td>Built-in notebook editing</td><td><code>NotebookEdit</code>: edits a cell by id; no kernel</td><td><span class="chip today">Today</span></td><td><a href="https://code.claude.com/docs/en/tools-reference">Tools</a></td></tr>
+        <tr class="group"><td colspan="4">Notebook side: shipped and validated</td></tr>
+        <tr><td>Agent CLI for notebooks, model-oriented output, bounded with overflow files, Claude Code skill</td><td>nb-cli 0.0.10</td><td><span class="chip today">Today</span></td><td><a href="https://github.com/jupyter-ai-contrib/nb-cli">nb-cli</a></td></tr>
+        <tr><td>nb-cli against <code>ganymede serve</code>; kernel state kept across calls; cdp-kernel and ipykernel</td><td>Ganymede #240</td><td><span class="chip today">Today</span></td><td><a href="https://github.com/tlockney/ganymede/issues/240">#240</a>, <a href="https://github.com/tlockney/ganymede/blob/main/docs/clients.md">clients.md</a></td></tr>
+        <tr><td>Server discovery file <code>jpserver-&lt;pid&gt;.json</code></td><td>Ganymede #242</td><td><span class="chip today">Today</span> (unreleased)</td><td><a href="https://github.com/tlockney/ganymede/issues/242">#242</a></td></tr>
+        <tr><td>TypeScript cells, <code>npm:</code> imports, display API (Markdown, HTML, SVG, PNG), Polars, Plot, Vega-Lite</td><td>cdp-kernel</td><td><span class="chip today">Today</span></td><td><a href="https://cdp-kernel.org/docs/jupyter-api">jupyter API</a></td></tr>
+        <tr><td>Re-run a notebook headless, output matching <code>jupyter execute</code></td><td><code>ganymede execute</code></td><td><span class="chip today">Today</span></td><td><a href="https://github.com/tlockney/ganymede/blob/main/docs/reference.md">reference.md</a></td></tr>
+        <tr class="group"><td colspan="4">Ganymede: planned under #239</td></tr>
+        <tr><td>Agents docs page with journaling conventions</td><td>#241</td><td><span class="chip plan">Planned</span></td><td><a href="https://github.com/tlockney/ganymede/issues/241">#241</a></td></tr>
+        <tr><td>Server-owned live document; human and agent in one room</td><td><code>yrs</code> rooms, #243</td><td><span class="chip plan">Planned</span></td><td><a href="https://github.com/tlockney/ganymede/issues/243">#243</a></td></tr>
+        <tr><td>Outputs written by the server; stale-source check</td><td>JSD execute endpoint, #244</td><td><span class="chip plan">Planned</span></td><td><a href="https://github.com/tlockney/ganymede/issues/244">#244</a></td></tr>
+        <tr><td><code>notebook_open</code>, <code>cell_run</code> (and scratch), <code>cell_add</code> (recorded), <code>cell_edit</code>, <code>notebook_run_all</code>, <code>journal</code> prompt, provenance metadata, opt-in PNG/JPEG</td><td><code>ganymede mcp</code>, #245</td><td><span class="chip plan">Planned</span></td><td><a href="https://github.com/tlockney/ganymede/issues/245">#245</a></td></tr>
+        <tr class="group"><td colspan="4">Proposed in this document</td></tr>
+        <tr><td>The <code>ganymede-journal</code> plugin: skill, hooks, reviewer subagent, MCP config</td><td>A plugin, in the Ganymede repo or its own</td><td><span class="chip prop">Proposed</span></td><td><a href="#kit">The kit</a></td></tr>
+        <tr><td>SVG outputs rasterized to PNG in the model's reply</td><td><code>ganymede mcp</code> (a pure-Rust rasterizer such as resvg)</td><td><span class="chip prop">Proposed</span></td><td>M5 above</td></tr>
+        <tr><td>"What changed since my last read" query</td><td>Ganymede API or MCP tool, fed to a hook or monitor</td><td><span class="chip prop">Proposed</span></td><td>M6 above</td></tr>
+        <tr><td>Revision history in cell metadata</td><td><code>metadata.ganymede.agent.history</code></td><td><span class="chip prop">Proposed</span></td><td>M8 above</td></tr>
+        <tr><td>Journal view and static export</td><td>ganymede-ui</td><td><span class="chip prop">Proposed</span></td><td><a href="#journal">The journal</a></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section id="faq" aria-labelledby="faq-h">
+  <header>
+    <span class="eyebrow">FAQ</span>
+    <h2 id="faq-h">Questions a user would ask, and questions we should</h2>
+  </header>
+  <div class="faq-cols">
+    <div>
+      <p class="eyebrow" style="margin-bottom:8px">External</p>
+      <div class="faq">
+        <details open><summary>Why a notebook and not a Markdown report?</summary><div class="a"><p>A report is written after the fact. A notebook can be re-run: the code, its outputs and the narration live in one file that <code>ganymede execute</code> checks. It also opens in tools you already have.</p></div></details>
+        <details><summary>Can't Claude Code already edit notebooks?</summary><div class="a"><p>Its <code>NotebookEdit</code> tool edits cells in the file, but runs nothing. Journaling needs a kernel whose state lasts across calls, outputs written back, and a document a person can watch. That's the server's job.</p></div></details>
+        <details><summary>Do I need Python?</summary><div class="a"><p>No. Ganymede, nb-cli and cdp-kernel are Rust and TypeScript. A Python kernel works if you install one.</p></div></details>
+        <details><summary>Does it work with agents other than Claude Code?</summary><div class="a"><p>The MCP server and the skill do: MCP is an open protocol, and the skill uses the Agent Skills format. The hooks are Claude Code's, so another agent gets the conventions without the enforcement.</p></div></details>
+        <details><summary>What does the agent actually see of my outputs?</summary><div class="a"><p>Text first, cut to about 4,000 characters, with the full output in a file it can open. Errors come back short and without colour codes. Images come back as images if you allow it, which you want for charts.</p></div></details>
+        <details><summary>What happens to dead ends?</summary><div class="a"><p>Quick probes leave nothing. A hypothesis that was tested and failed stays, because the test is evidence; the finding is revised to say so. The old wording is in metadata, not on the page.</p></div></details>
+      </div>
+    </div>
+    <div>
+      <p class="eyebrow" style="margin-bottom:8px">Internal</p>
+      <div class="faq">
+        <details open><summary>What is the smallest version worth shipping?</summary><div class="a"><p>The journaling skill on top of nb-cli and <code>ganymede serve</code>, which runs today. It tests whether the conventions produce notebooks people want to read, before rooms, the MCP server or the view are built.</p></div></details>
+        <details><summary>What's the biggest risk?</summary><div class="a"><p>The rooms spike (#243): matching the <code>pycrdt</code> notebook schema JupyterLab's collaboration client expects from <code>yrs</code>. The live view, server-side outputs and the MCP server depend on it.</p></div></details>
+        <details><summary>Does this need a custom harness?</summary><div class="a"><p>No. Every agent behavior in the session uses documented Claude Code features. The new code is a Rust MCP server, server features in Ganymede, a plugin of Markdown and small TypeScript hooks, and a UI view.</p></div></details>
+        <details><summary>How do we know it works?</summary><div class="a"><p>A small eval set of exploration tasks with known answers, run headless with <code>claude -p</code> and the plugin. Measure: share of sessions that end with a clean run-all, recorded steps passed off as kernel output (should be zero), findings revised versus appended, and how often a person had to rewrite the summary. Block's mcp-jupyter cut 11 tools to 4 after evals like this.</p></div></details>
+        <details><summary>What stays open?</summary><div class="a"><p>Whether recorded cells should be Markdown or <code>raw</code>. Whether scratch runs should leave a count. Whether the PostToolUse hook records every Bash call or only ones the agent marks. Where the plugin lives. How a journal entry links to the chat that produced it.</p></div></details>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ NEXT ============ -->
+<section id="next" aria-labelledby="next-h">
+  <header>
+    <span class="eyebrow">Working forwards</span>
+    <h2 id="next-h">Order of work</h2>
+  </header>
+  <ol class="steps">
+    <li><div><b>Write the journaling skill and try it on nb-cli today</b><span class="d">Use the SKILL.md above with <code>ganymede serve</code> and nb-cli on two or three real explorations. Keep what reads well; this also drafts the Agents page (#241).</span></div><span class="chip today">Can start now</span></li>
+    <li><div><b>Rooms spike, then the execute endpoint</b><span class="d">#243 and #244, already ordered in #239.</span></div><span class="chip plan">Planned</span></li>
+    <li><div><b><code>ganymede mcp</code>, with SVG-to-PNG in replies</b><span class="d">#245, plus the rasterizing step proposed here so charts reach the model.</span></div><span class="chip plan">Planned</span></li>
+    <li><div><b>The plugin</b><span class="d">Move the skill in, add the four hooks and the reviewer, and publish a marketplace entry.</span></div><span class="chip prop">Proposed</span></li>
+    <li><div><b>Journal view in ganymede-ui</b><span class="d">Provenance gutter, revisions, run-all stamp, static export. Needs the rooms move in ganymede-ui.</span></div><span class="chip prop">Proposed</span></li>
+    <li><div><b>Evals</b><span class="d">The measures in the FAQ, run headless against each change to the skill or tools.</span></div><span class="chip prop">Proposed</span></li>
+  </ol>
+
+  <div class="sources" style="margin-top:40px">
+    <p><b style="color:var(--ink)">Sources</b> (read 31 Oct 2026)</p>
+    <ul>
+      <li>Ganymede: <a href="https://github.com/tlockney/ganymede/issues/239">#239 agent-native tracking issue</a> and its sub-issues #240 to #245; <code>docs/clients.md</code>; dev-log notes on nb-cli validation and the server info file; the Agent-native Ganymede design memo.</li>
+      <li>cdp-kernel: README, <code>docs/jupyter-api.md</code>, the MoMA example notebook.</li>
+      <li>nb-cli: <a href="https://github.com/jupyter-ai-contrib/nb-cli">README</a> and <code>skills/notebook-cli/SKILL.md</code>.</li>
+      <li>Claude Code docs: <a href="https://code.claude.com/docs/en/skills">skills</a>, <a href="https://code.claude.com/docs/en/plugins">plugins</a>, <a href="https://code.claude.com/docs/en/mcp">MCP</a>, <a href="https://code.claude.com/docs/en/hooks">hooks</a>, <a href="https://code.claude.com/docs/en/sub-agents">subagents</a>, <a href="https://code.claude.com/docs/en/tools-reference">tools</a>, <a href="https://code.claude.com/docs/en/headless">headless</a>.</li>
+      <li>Forms: Amazon's working-backwards press release and FAQ; Near Future Laboratory's design fiction.</li>
+    </ul>
+  </div>
+</section>
+
+</div>

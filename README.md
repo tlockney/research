@@ -11,3 +11,4 @@ Modeled on Simon Willison's [simonw/research](https://github.com/simonw/research
 - [ts-on-ipados](ts-on-ipados/): a TypeScript scripting and notebook environment for iPadOS. Design exploration; nothing built.
 - [jupyter-core-rs](jupyter-core-rs/): a Jupyter server in Rust with no Python dependency. Moved to [tlockney/ganymede](https://github.com/tlockney/ganymede).
 - [ganymede-ui](ganymede-ui/): a macOS-style notebook app and PWA for Ganymede, on datalayer/jupyter-ui. Moved to [tlockney/ganymede-ui](https://github.com/tlockney/ganymede-ui).
+- [agent-notebook-workflow](agent-notebook-workflow/): agents journaling an analysis into a live TypeScript notebook through Ganymede; a working-backwards press release and design fiction. Design only.
