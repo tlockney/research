@@ -12,3 +12,4 @@ Modeled on Simon Willison's [simonw/research](https://github.com/simonw/research
 - [jupyter-core-rs](jupyter-core-rs/): a Jupyter server in Rust with no Python dependency. Moved to [tlockney/ganymede](https://github.com/tlockney/ganymede).
 - [ganymede-ui](ganymede-ui/): a macOS-style notebook app and PWA for Ganymede, on datalayer/jupyter-ui. Moved to [tlockney/ganymede-ui](https://github.com/tlockney/ganymede-ui).
 - [agent-notebook-workflow](agent-notebook-workflow/): agents journaling an analysis into a live TypeScript notebook through Ganymede; a working-backwards press release and design fiction. Design only.
+- [future-design-exploration](future-design-exploration/): a draft skill for exploring unbuilt ideas as Claude artifacts (working-backwards press release, design fiction, reality check), iterated before committing elsewhere. Draft.
