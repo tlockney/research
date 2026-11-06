@@ -244,12 +244,12 @@ figcaption { font-size: 13.5px; color: var(--muted); max-width: 75ch; }
 <div class="masthead">
   <strong>Ganymede Journal</strong>
   <span class="eyebrow">Working backwards · design fiction · 31 Oct 2026</span>
-  <span class="fiction-flag">The release below describes a future state. The status chips say what exists.</span>
+  <span class="fiction-flag">Written 31 Oct as fiction; reviewed 6 Nov, when most of it had shipped. The status chips say what exists.</span>
 </div>
 
 <!-- ============ PRESS RELEASE ============ -->
 <article class="release" aria-labelledby="pr-title">
-  <div class="kicker"><span>For release · spring 2027</span><span>tlockney/ganymede</span><span>Draft 1</span></div>
+  <div class="kicker"><span>For release · spring 2027</span><span>tlockney/ganymede</span><span>Draft 2 · reviewed 6 Nov 2026</span></div>
   <h1 id="pr-title">Your agent keeps the lab notebook while you think</h1>
   <p class="sub">Ganymede Journal lets Claude Code and other agents work through an analysis inside a live TypeScript notebook you can watch, edit and re-run, instead of writing one up at the end.</p>
   <div class="body">
@@ -258,25 +258,26 @@ figcaption { font-size: 13.5px; color: var(--muted); max-width: 75ch; }
     <p>Journal changes the order of operations. The agent never runs analysis code anywhere but the notebook's kernel, so the journal is reproducible by construction. Steps that had to happen elsewhere, such as a <code>gh</code> or <code>curl</code> call that needs your credentials, are written in as clearly marked recorded cells and never pass as kernel output. Quick checks the agent makes to orient itself run on the same kernel without cluttering the page. When understanding changes, the agent revises the earlier finding in place, and the notebook keeps what it used to say.</p>
     <blockquote>"I kept asking Claude to write the notebook at the end, and I realized I was asking it to redo the work I used to do in Jupyter directly. Now it does the work there in the first place, and I get to sit next to it."<cite>Thomas Lockney, Ganymede maintainer (draft quote)</cite></blockquote>
     <p>Journal is built from parts that already exist. Ganymede serves the standard Jupyter API, so nb-cli, JupyterLab and VS Code connect unchanged. Its new <code>ganymede mcp</code> command gives agents a handful of tools shaped around one move, "add a cell and run it". The plugin bundles that MCP server with a journaling skill, a few hooks that keep the record honest, and a reviewer agent that reads the finished notebook cold. Nothing in it needs a custom agent harness: it is configuration for the agent you already use.</p>
-    <p>TypeScript is the default language, through cdp-kernel, with charts from Observable Plot or Vega-Lite and tables from Polars. Any installed kernel works, Python's included. Charts come back to the agent as images, so it reads the plot it just drew instead of guessing from the numbers.</p>
+    <p>TypeScript is the default language, through cdp-kernel, with charts from Observable Plot or Vega-Lite and tables from Polars. Any installed kernel works, Python's included. With images turned on, charts come back to the agent as pictures, so it reads the plot it just drew instead of guessing from the numbers.</p>
     <blockquote>"The best part is the end. I don't ask for a write-up any more. I read the journal, fix one sentence, and link it in the incident ticket."<cite>A platform engineer, fictional early user</cite></blockquote>
-    <p>To start: install Ganymede and cdp-kernel, then run <code>/plugin install ganymede-journal</code> in Claude Code. Type <code>/ganymede:journal</code> and a question.</p>
+    <p>To start: install Ganymede and cdp-kernel, then in Claude Code run <code>/plugin marketplace add tlockney/ganymede</code> and <code>/plugin install ganymede-journal@ganymede</code>. Type <code>/ganymede-journal:journal</code> and a question.</p>
   </div>
   <div class="end">###</div>
 </article>
 
 <section id="status" aria-labelledby="status-h">
   <header>
-    <span class="eyebrow">How to read the rest</span>
-    <h2 id="status-h">Every claim carries a status</h2>
+    <span class="eyebrow">How to read the rest · reviewed 6 Nov 2026</span>
+    <h2 id="status-h">Most of it has shipped</h2>
   </header>
   <div class="prose">
-    <p>The release is fiction; everything after it is a design. Each capability the story depends on is marked with one of three statuses, and the <a href="#grounding">reality check</a> lists them all with sources. Nothing here depends on a feature an AI lab has not shipped. The agent side uses Claude Code's documented skills, MCP, hooks, subagents and plugins as of 31 October 2026. Everything that has to be built is Ganymede's own work or a plugin of ours.</p>
+    <p>This page started on 31 October as a design, with the release above as fiction. Within a week most of it was built. Ganymede 0.5.0 (3 November) shipped document rooms, the execute endpoint and <code>ganymede mcp</code>. Ganymede 0.6.0 (6 November) shipped the <code>ganymede-journal</code> plugin, charts sent to the agent as PNG, "what changed since my last read", and revision history in cell metadata. Tracking issue <a href="https://github.com/tlockney/ganymede/issues/239">#239</a> is closed; the follow-ups are on <a href="https://github.com/tlockney/ganymede/issues/311">#311</a>.</p>
+    <p>What's left is mostly the look: ganymede-ui still edits through the contents API, so the live view today is JupyterLab with the collaboration extension, and the journal view below is a design. Each capability carries one of three statuses; the <a href="#grounding">reality check</a> lists them with sources. The agent side still uses only Claude Code's documented skills, MCP, hooks, subagents and plugins.</p>
   </div>
   <div class="legend" style="margin-top:18px">
-    <span><span class="chip today">Works today</span> shipped and documented, or validated against Ganymede</span>
-    <span><span class="chip plan">Planned</span> in Ganymede's issues #239 to #245</span>
-    <span><span class="chip prop">Proposed here</span> not tracked yet; buildable with today's agent features</span>
+    <span><span class="chip today">Shipped</span> in a release, with its version, or in Claude Code as documented</span>
+    <span><span class="chip plan">Tracked</span> filed as an open issue, not done yet</span>
+    <span><span class="chip prop">Open</span> a question nobody has decided</span>
   </div>
 </section>
 
@@ -305,7 +306,7 @@ figcaption { font-size: 13.5px; color: var(--muted); max-width: 75ch; }
     <p>Thomas has a hunch that cdp-kernel's interrupt test has been flaky in CI since late September. He opens Claude Code in the repo, with ganymede-ui open beside it. The left column is the conversation, including the tool calls Claude Code shows; the middle is what changed in the notebook at that moment; the notes underneath say what each step depends on. The CI numbers are illustrative, not cdp-kernel's real history.</p>
   </div>
 
-  <div class="session-head" aria-hidden="true"><span>Time</span><span>Conversation</span><span>Notebook (live in ganymede-ui)</span></div>
+  <div class="session-head" aria-hidden="true"><span>Time</span><span>Conversation</span><span>Notebook (live view)</span></div>
 
   <!-- M1 -->
   <div class="moment">
@@ -322,9 +323,9 @@ figcaption { font-size: 13.5px; color: var(--muted); max-width: 75ch; }
       </div>
     </div>
     <div class="notes">
-      <div class="note"><span class="chip today">Works today</span>The skill loads from its description when the request matches, or by name. Claude Code shows the MCP call in the transcript.</div>
-      <div class="note"><span class="chip plan">Planned · #245</span><code>notebook_open</code> with a title cell. Today the same step is <code>nb create</code> plus <code>nb cell add</code> through nb-cli's skill.</div>
-      <div class="note"><span class="chip plan">Planned · #243</span>Seeing the cell appear live needs document rooms. Today ganymede-ui shows it after a reload.</div>
+      <div class="note"><span class="chip today">Shipped</span>The plugin's skill loads from its description when the request matches, or as <code>/ganymede-journal:journal</code>. Claude Code shows the MCP call in the transcript.</div>
+      <div class="note"><span class="chip today">Shipped 0.5.0</span><code>notebook_open</code> creates the notebook and its folder, adds the title cell, and starts or joins the kernel.</div>
+      <div class="note"><span class="chip plan">Tracked · ganymede-ui#183</span>Rooms make the cell appear live in JupyterLab with the collaboration extension today. ganymede-ui shows it after a reload until the app moves to rooms.</div>
     </div>
   </div>
 
@@ -332,9 +333,9 @@ figcaption { font-size: 13.5px; color: var(--muted); max-width: 75ch; }
   <div class="moment">
     <div class="t"><b>14:04</b><span>fetch</span></div>
     <div class="convo">
-      <div class="msg agent"><span class="who">Claude</span><p>The run history needs your GitHub credentials, so I'll fetch it with <code>gh</code> in the shell and record that step.</p></div>
-      <div class="tool"><span class="name">Bash</span>(gh run list -w ci.yml -L 450 --json databaseId,createdAt,headSha,conclusion,jobs &gt; runs.json)<span class="ret">(no output)</span></div>
-      <div class="tool"><span class="name">ganymede · cell_add</span>(mode: "recorded", source: "…")<span class="ret">cell 3f9c · recorded</span></div>
+      <div class="msg agent"><span class="who">Claude</span><p>The run history needs your GitHub credentials, so I'll fetch it with <code>gh</code> in the shell and mark the command for the journal.</p></div>
+      <div class="tool"><span class="name">Bash</span>(gh run list -w ci.yml -L 450 --json databaseId,createdAt,headSha,conclusion,jobs &gt; runs.json  # journal)<span class="ret">(no output)</span></div>
+      <div class="tool"><span class="name">hook · PostToolUse</span><span class="ret">recorded in the journal as cell 3f9c</span></div>
     </div>
     <div class="nbcol">
       <div class="nb">
@@ -344,9 +345,9 @@ figcaption { font-size: 13.5px; color: var(--muted); max-width: 75ch; }
       </div>
     </div>
     <div class="notes">
-      <div class="note"><span class="chip today">Works today</span>Bash with the user's own <code>gh</code> login. Credentials stay out of the notebook.</div>
-      <div class="note"><span class="chip plan">Planned · #239, #245</span>Recorded cells: Markdown with a fenced block, tagged <code>metadata.ganymede.agent.mode = "recorded"</code>.</div>
-      <div class="note"><span class="chip prop">Proposed here</span>A <code>PostToolUse</code> hook matched on <code>Bash</code> adds the recorded cell itself, so the record doesn't depend on the model remembering.</div>
+      <div class="note"><span class="chip today">Shipped</span>Bash with the user's own <code>gh</code> login. Credentials stay out of the notebook.</div>
+      <div class="note"><span class="chip today">Shipped 0.5.0</span>Recorded cells: Markdown with a fenced block, tagged <code>metadata.ganymede.agent.mode = "recorded"</code>, from <code>cell_add(mode: "recorded")</code>.</div>
+      <div class="note"><span class="chip today">Shipped 0.6.0</span>The plugin's <code>PostToolUse</code> hook records a Bash command ending in <code># journal</code>, with up to 2,000 characters of output. <code>GANYMEDE_JOURNAL_RECORD=all</code> records every command.</div>
     </div>
   </div>
 
@@ -362,8 +363,8 @@ figcaption { font-size: 13.5px; color: var(--muted); max-width: 75ch; }
       <div class="empty-nb">No change. A scratch run uses the notebook's kernel and its state but adds no cell.</div>
     </div>
     <div class="notes">
-      <div class="note"><span class="chip plan">Planned · #245</span><code>record: false</code>. Scratch runs leave no trace in v1, by decision on #239.</div>
-      <div class="note"><span class="chip today">Works today</span>With nb-cli there is no scratch mode; the agent adds a cell and deletes it, or probes in <code>node -e</code>, which doesn't share the kernel's state.</div>
+      <div class="note"><span class="chip today">Shipped 0.5.0</span><code>cell_run(record: false)</code>. Scratch runs leave no cell, but share the kernel's state.</div>
+      <div class="note"><span class="chip today">Shipped 0.6.0</span>Scratch runs use <code>store_history: false</code>, so recorded cells' counts have no gaps, and one that times out is interrupted so it doesn't hold the kernel.</div>
     </div>
   </div>
 
@@ -378,7 +379,7 @@ shape: (9, 3) week · runs · failed …  (9 rows, text/plain)</span></div>
     <div class="nbcol">
       <div class="nb">
         <div class="cell new"><div class="gut"><span class="prov n">note</span></div><div class="body"><h4>1. How often does it fail, by week?</h4><div class="md"><p>One row per CI run with the interrupt test's result, from the e2e jobs' test summaries. A weekly rate shows whether "since late September" is real.</p></div></div></div>
-        <div class="cell new"><div class="gut"><span>[3]</span><span class="prov e">exec</span></div><div class="body"><div class="src"><pre><code><span class="c-k">import</span> pl <span class="c-k">from</span> <span class="c-s">"npm:nodejs-polars@0.18.0"</span>;
+        <div class="cell new"><div class="gut"><span>[1]</span><span class="prov e">exec</span></div><div class="body"><div class="src"><pre><code><span class="c-k">import</span> pl <span class="c-k">from</span> <span class="c-s">"npm:nodejs-polars@0.18.0"</span>;
 <span class="c-k">import</span> { tests } <span class="c-k">from</span> <span class="c-s">"./ci.ts"</span>;   <span class="c-c">// joins runs.json with the test summaries</span>
 
 <span class="c-k">const</span> df = pl.DataFrame(<span class="c-k">await</span> tests(<span class="c-s">"interrupt keeps state"</span>));
@@ -398,9 +399,9 @@ weekly;</code></pre></div>
       </div>
     </div>
     <div class="notes">
-      <div class="note"><span class="chip today">Works today</span>cdp-kernel runs TypeScript with <code>npm:</code> imports; its own MoMA example uses <code>nodejs-polars@0.18.0</code>. With <code>ganymede serve</code>, separate <code>nb execute</code> calls share one kernel (validated 31 Oct, #240).</div>
-      <div class="note"><span class="chip today">Works today</span>The reply to the model is nb-cli's <code>@@cell</code>/<code>@@output</code> text, bounded at 4,000 characters, with the rest in a file. <code>ganymede mcp</code> keeps that format (#245).</div>
-      <div class="note"><span class="chip today">Works today</span>A helper module (<code>ci.ts</code>) is an ordinary file the agent writes with its Edit tool and the kernel imports. Code reused across cells goes there.</div>
+      <div class="note"><span class="chip today">Shipped</span>cdp-kernel runs TypeScript with <code>npm:</code> imports; its own MoMA example uses <code>nodejs-polars@0.18.0</code>. Each notebook has one kernel, shared by every call.</div>
+      <div class="note"><span class="chip today">Shipped 0.5.0</span>The reply to the model is nb-cli's <code>@@cell</code>/<code>@@output</code> text, bounded at 4,000 characters, with the rest in a file whose path the reply gives.</div>
+      <div class="note"><span class="chip today">Shipped</span>A helper module (<code>ci.ts</code>) is an ordinary file the agent writes with its Edit tool and the kernel imports. Code reused across cells goes there.</div>
     </div>
   </div>
 
@@ -409,12 +410,12 @@ weekly;</code></pre></div>
     <div class="t"><b>14:09</b><span>chart</span></div>
     <div class="convo">
       <div class="tool"><span class="name">ganymede · cell_run</span>(source: "Plot.barY(weekly, …).plot({ document })")<span class="ret">@@output {"output_type":"display_data","mime":"image/svg+xml"}
-[image 1280×520, rendered from SVG]</span></div>
+[PNG 1600×625, rendered from SVG]</span></div>
       <div class="msg agent"><span class="who">Claude</span><p>The chart agrees with the table: about 1% of runs fail until the week of 28 September, then 7 to 8% every week since. Nothing gradual about it, so something changed that week. I've written that down as the finding, cause unknown.</p></div>
     </div>
     <div class="nbcol">
       <div class="nb">
-        <div class="cell new"><div class="gut"><span>[4]</span><span class="prov e">exec</span></div><div class="body"><div class="src"><pre><code><span class="c-k">import</span> * <span class="c-k">as</span> Plot <span class="c-k">from</span> <span class="c-s">"npm:@observablehq/plot"</span>;
+        <div class="cell new"><div class="gut"><span>[2]</span><span class="prov e">exec</span></div><div class="body"><div class="src"><pre><code><span class="c-k">import</span> * <span class="c-k">as</span> Plot <span class="c-k">from</span> <span class="c-s">"npm:@observablehq/plot"</span>;
 Plot.barY(weekly.toRecords(), { x: <span class="c-s">"week"</span>, y: d =&gt; d.failed / d.runs })
   .plot({ document, y: { percent: <span class="c-k">true</span> } });</code></pre></div>
           <div class="out scroll">
@@ -442,9 +443,9 @@ Plot.barY(weekly.toRecords(), { x: <span class="c-s">"week"</span>, y: d =&gt; d
       </div>
     </div>
     <div class="notes">
-      <div class="note"><span class="chip today">Works today</span>Claude Code shows PNG, JPEG, GIF and WebP in MCP tool results to the model, and its Read tool shows image files. That is how Claude reads the chart instead of guessing from numbers.</div>
-      <div class="note"><span class="chip plan">Planned · #245</span>PNG and JPEG outputs returned as MCP image content when the client opts in.</div>
-      <div class="note"><span class="chip prop">Proposed here</span>Plot and Vega-Lite produce SVG, which MCP image content can't carry. Ganymede rasterizes <code>image/svg+xml</code> to PNG for the reply only; the notebook keeps the SVG.</div>
+      <div class="note"><span class="chip today">Shipped</span>Claude Code shows PNG, JPEG, GIF and WebP in MCP tool results to the model. That is how Claude reads the chart instead of guessing from numbers.</div>
+      <div class="note"><span class="chip today">Shipped 0.6.0</span>With images on, an SVG output goes to the agent as a PNG (resvg, at most 1,600 px, white background). The notebook keeps the SVG.</div>
+      <div class="note"><span class="chip prop">Open</span>Images are off by default. <code>--images</code> starts a private server nobody can watch; <code>mcp_images = true</code> on a shared server gives both. Should that be the default?</div>
     </div>
   </div>
 
@@ -454,8 +455,8 @@ Plot.barY(weekly.toRecords(), { x: <span class="c-s">"week"</span>, y: d =&gt; d
     <div class="convo">
       <div class="msg human"><span class="who">Thomas, in ganymede-ui</span><p>Types a cell under the finding instead of answering in chat.</p></div>
       <div class="msg human"><span class="who">Thomas, in chat</span><p>Left you a note in the notebook.</p></div>
-      <div class="tool"><span class="name">hook · UserPromptSubmit</span><span class="ret">additionalContext: notebook changed since your last read: cell 7a1e added by a person (no agent metadata)</span></div>
-      <div class="tool"><span class="name">ganymede · notebook_read</span>(since: "4c02")<span class="ret">@@cell {"id":"7a1e","cell_type":"markdown"} …</span></div>
+      <div class="tool"><span class="name">hook · UserPromptSubmit</span><span class="ret">additionalContext from notebook_read(since: "3f2a9c0d1b7e4a65"):
+@@cell {"id":"7a1e","cell_type":"markdown","change":["added"]} …</span></div>
       <div class="msg agent"><span class="who">Claude</span><p>Good lead. Before testing it I'll split the failures by runner as well as Node version, since the e2e job runs on Ubuntu and macOS and the bump touched both.</p></div>
     </div>
     <div class="nbcol">
@@ -465,9 +466,9 @@ Plot.barY(weekly.toRecords(), { x: <span class="c-s">"week"</span>, y: d =&gt; d
       </div>
     </div>
     <div class="notes">
-      <div class="note"><span class="chip plan">Planned · #243</span>One document, edited by both. The agent's tools and ganymede-ui share a <code>yrs</code> room, and JSD's <code>source_hash</code> check stops a stale run of a cell someone just changed.</div>
-      <div class="note"><span class="chip prop">Proposed here</span>A <code>UserPromptSubmit</code> hook asks Ganymede what changed since the agent's last read and adds it as context. Hooks can add context today; the "changes since" query is new.</div>
-      <div class="note"><span class="chip prop">Proposed here</span>Alternative: a plugin monitor, a background command whose output reaches Claude, that streams room changes as they happen.</div>
+      <div class="note"><span class="chip today">Shipped 0.5.0</span>One document, edited by both: the agent's tools and the person's editor share a <code>yrs</code> room, and the <code>source_hash</code> check stops a stale run of a cell someone just changed.</div>
+      <div class="note"><span class="chip today">Shipped 0.6.0</span>The plugin's <code>UserPromptSubmit</code> hook reads the journal with the agent's read mark and adds what others changed as context. The agent's own edits move the mark, so they aren't reported back.</div>
+      <div class="note"><span class="chip plan">Tracked · ganymede-ui#183</span>Typing a cell in ganymede-ui needs the app on rooms. Today the person does this in JupyterLab with the collaboration extension.</div>
     </div>
   </div>
 
@@ -482,7 +483,7 @@ Plot.barY(weekly.toRecords(), { x: <span class="c-s">"week"</span>, y: d =&gt; d
     <div class="nbcol">
       <div class="nb">
         <div class="cell new"><div class="gut"><span class="prov n">note</span></div><div class="body"><h4>2. Node version or runner?</h4><div class="md"><p>Thomas's note: Node 24.10 landed around 2 October. Split the post-change weeks by runner and Node version; if Node is the cause, the rate should follow the version on both runners.</p></div></div></div>
-        <div class="cell new"><div class="gut"><span>[6]</span><span class="prov e">exec</span></div><div class="body"><div class="src"><pre><code>df.filter(pl.col(<span class="c-s">"week"</span>).gtEq(<span class="c-s">"2026-09-28"</span>))
+        <div class="cell new"><div class="gut"><span>[3]</span><span class="prov e">exec</span></div><div class="body"><div class="src"><pre><code>df.filter(pl.col(<span class="c-s">"week"</span>).gtEq(<span class="c-s">"2026-09-28"</span>))
   .groupBy([<span class="c-s">"runner"</span>, <span class="c-s">"node"</span>])
   .agg(pl.col(<span class="c-s">"failed"</span>).count().alias(<span class="c-s">"runs"</span>),
        pl.col(<span class="c-s">"failed"</span>).mean().alias(<span class="c-s">"rate"</span>));</code></pre></div>
@@ -496,8 +497,8 @@ Plot.barY(weekly.toRecords(), { x: <span class="c-s">"week"</span>, y: d =&gt; d
       </div>
     </div>
     <div class="notes">
-      <div class="note"><span class="chip today">Works today</span>The agent picks up the human's cell as an input and says so in the narration. That is conventions in the skill, nothing more.</div>
-      <div class="note"><span class="chip plan">Planned · #245</span>Cells by stable id, so the human's insertion doesn't shift what the agent refers to.</div>
+      <div class="note"><span class="chip today">Shipped 0.6.0</span>The agent takes the person's cell as input and says so in the narration. That is a convention in the plugin's skill, nothing more.</div>
+      <div class="note"><span class="chip today">Shipped 0.5.0</span>Cells by stable id, so the person's insertion doesn't shift what the agent refers to.</div>
     </div>
   </div>
 
@@ -514,8 +515,8 @@ Plot.barY(weekly.toRecords(), { x: <span class="c-s">"week"</span>, y: d =&gt; d
       </div>
     </div>
     <div class="notes">
-      <div class="note"><span class="chip plan">Planned · #245</span><code>cell_edit</code> by id. "Edit and re-run a broken step instead of appending a corrected copy" is a convention in #241.</div>
-      <div class="note"><span class="chip prop">Proposed here</span>Keep superseded text in <code>metadata.ganymede.agent.history</code>, so a revision is visible (ganymede-ui can show "rev 2") without cluttering the page.</div>
+      <div class="note"><span class="chip today">Shipped 0.5.0</span><code>cell_edit</code> by id, with <code>run: true</code> to re-run it. "Revise, don't append" is in the skill.</div>
+      <div class="note"><span class="chip today">Shipped 0.6.0</span>The replaced text goes to <code>metadata.ganymede.agent.history</code> (last 10 per cell). Showing "rev 2" is ganymede-ui#184.</div>
     </div>
   </div>
 
@@ -537,9 +538,9 @@ Plot.barY(weekly.toRecords(), { x: <span class="c-s">"week"</span>, y: d =&gt; d
       </div>
     </div>
     <div class="notes">
-      <div class="note"><span class="chip plan">Planned · #245</span><code>notebook_run_all</code>. Today: <code>ganymede execute notebook.ipynb</code> in Bash, which matches <code>jupyter execute</code>.</div>
-      <div class="note"><span class="chip prop">Proposed here</span>A <code>Stop</code> hook blocks "done" while the notebook has edits since its last clean run-all. Stop hooks can block today.</div>
-      <div class="note"><span class="chip today">Works today</span>A reviewer subagent has its own context, sees only the notebook, and returns a summary. It reads the journal the way a stranger would.</div>
+      <div class="note"><span class="chip today">Shipped 0.5.0</span><code>notebook_run_all</code> restarts the kernel and runs every code cell in order.</div>
+      <div class="note"><span class="chip today">Shipped 0.6.0</span>The plugin's <code>Stop</code> hook, once per round of edits, keeps the agent from ending its turn while the journal has edits since its last clean run-all, unless it says it is only pausing.</div>
+      <div class="note"><span class="chip today">Shipped 0.6.0</span>The <code>journal-reviewer</code> subagent sees only the notebook, re-runs it, and lists what a stranger couldn't follow. It doesn't edit.</div>
     </div>
   </div>
 </section>
@@ -611,10 +612,10 @@ Plot.barY(weekly.toRecords(), { x: <span class="c-s">"week"</span>, y: d =&gt; d
   </article>
 
   <div class="annot">
-    <div><b>Header and stamp</b>Title cell, kernelspec, timestamps from cell metadata, and the last clean run-all. <span class="chip prop">Proposed here</span></div>
-    <div><b>Provenance gutter</b><code>exec</code>, <code>rec</code>, <code>note</code> from <code>metadata.ganymede.agent.mode</code>; cells without it are a person's. <span class="chip plan">Planned · #245</span> for the metadata, <span class="chip prop">Proposed here</span> for the view.</div>
-    <div><b>Revisions</b>"rev 2" with the earlier text on hover, from the history field. <span class="chip prop">Proposed here</span></div>
-    <div><b>Where it renders</b>A read-only journal view in ganymede-ui, and a static HTML export of it for sharing. Ganymede itself has no nbconvert, by design, so this belongs in the UI. <span class="chip prop">Proposed here</span></div>
+    <div><b>Header and stamp</b>Title cell, kernelspec, timestamps from cell metadata, and the last clean run-all. <span class="chip plan">Tracked · ganymede-ui#184</span></div>
+    <div><b>Provenance gutter</b><code>exec</code>, <code>rec</code>, <code>note</code> from <code>metadata.ganymede.agent.mode</code>; cells without it are a person's. The metadata <span class="chip today">Shipped 0.5.0</span>, the view <span class="chip plan">Tracked · ganymede-ui#184</span></div>
+    <div><b>Revisions</b>"rev 2" with the earlier text on hover, from <code>metadata.ganymede.agent.history</code> (last 10 per cell). The data <span class="chip today">Shipped 0.6.0</span>, the view <span class="chip plan">Tracked · ganymede-ui#184</span></div>
+    <div><b>Where it renders</b>A read-only journal view in ganymede-ui and a static HTML export of it. Ganymede has no nbconvert, by design, so it belongs in the UI, after the app moves to rooms. <span class="chip plan">Tracked · ganymede-ui#183, #184</span></div>
   </div>
 </section>
 
@@ -625,83 +626,82 @@ Plot.barY(weekly.toRecords(), { x: <span class="c-s">"week"</span>, y: d =&gt; d
     <h2 id="kit-h">What you install, and what each piece does</h2>
   </header>
   <div class="prose" style="margin-bottom:24px">
-    <p>One Claude Code plugin carries the whole mode. Claude Code plugins can bundle skills, subagents, hooks, MCP servers, monitors and executables, and install at user or project scope, so a repo can commit "this project journals" in <code>.claude/settings.json</code>. The skill follows the Agent Skills format, and the MCP server is plain MCP, so the two portable pieces also work in other agents. The hooks are Claude Code's.</p>
+    <p>One Claude Code plugin carries the whole mode. It lives in the Ganymede repo at <a href="https://github.com/tlockney/ganymede/tree/main/plugins/ganymede-journal"><code>plugins/ganymede-journal</code></a>, next to the server it drives, and the repo is its marketplace. The skill follows the Agent Skills format and the MCP server is plain MCP, so those two also work in other agents; the hooks are Claude Code's. <a href="https://ganymede-server.com/docs/mcp">Agents over MCP</a> is the reference.</p>
   </div>
 
   <div class="kit">
     <div class="panel">
-      <div class="ph"><span>ganymede-journal/ · the plugin</span><span class="chip prop">Proposed here</span></div>
+      <div class="ph"><span>plugins/ganymede-journal/</span><span class="chip today">Shipped 0.6.0</span></div>
       <div class="tree">
         <div>.claude-plugin/plugin.json</div>
-        <div>.mcp.json <span class="d">runs <code>ganymede mcp</code> over stdio. It finds the server for this folder or starts one (#245).</span></div>
-        <div>skills/journal/SKILL.md <span class="d">the conventions, below</span></div>
-        <div>skills/journal/typescript.md <span class="d">cdp-kernel's display API, Polars and Plot idioms</span></div>
-        <div>agents/journal-reviewer.md <span class="d">reads the notebook cold, runs it, flags gaps</span></div>
-        <div>hooks/hooks.json <span class="d">four hooks, below</span></div>
-        <div>hooks/*.ts <span class="d">run by Node 24, which strips types</span></div>
+        <div>.mcp.json <span class="d">runs <code>ganymede mcp</code>: a running <code>serve --mcp</code> for this folder, else a server of its own</span></div>
+        <div>skills/journal/SKILL.md <span class="d">the conventions, the one copy</span></div>
+        <div>skills/journal/typescript.md <span class="d">cdp-kernel's display API, Polars and Plot</span></div>
+        <div>agents/journal-reviewer.md <span class="d">reads the notebook cold, re-runs it, lists gaps; doesn't edit</span></div>
+        <div>hooks/hooks.json, journal.mjs <span class="d">four hooks in one Node script (plain <code>.mjs</code>, so any Node runs it)</span></div>
       </div>
       <div class="pb" style="border-top:1px solid var(--rule)">
-        <p><b>Hooks</b></p>
+        <p><b>Hooks</b> reach the agent's server with <code>ganymede mcp call</code> and stay silent when anything fails.</p>
         <table>
           <tbody>
-            <tr><td class="mono">SessionStart</td><td>Report the running server and any open journal, as added context.</td></tr>
-            <tr><td class="mono">UserPromptSubmit</td><td>Add "cells a person changed since your last read" as context.</td></tr>
-            <tr><td class="mono">PostToolUse · Bash</td><td>Write the command and a bounded output as a recorded cell, when a journal is open.</td></tr>
-            <tr><td class="mono">Stop</td><td>Block ending while the journal has edits since its last clean run-all.</td></tr>
+            <tr><td class="mono">SessionStart</td><td>Whether a server runs for this folder, its kernels, and the journal open in a resumed session.</td></tr>
+            <tr><td class="mono">UserPromptSubmit</td><td>Reads the journal with the agent's read mark and adds what a person or another agent changed.</td></tr>
+            <tr><td class="mono">PostToolUse</td><td>Records a Bash command ending in <code># journal</code> as a recorded cell, with up to 2,000 characters of output. <code>GANYMEDE_JOURNAL_RECORD=all</code> records every one.</td></tr>
+            <tr><td class="mono">Stop</td><td>Once per round of edits, stops the agent ending its turn while the journal has edits since its last clean run-all, unless it says it is only pausing.</td></tr>
           </tbody>
         </table>
       </div>
     </div>
 
     <div class="panel">
-      <div class="ph"><span>skills/journal/SKILL.md</span><span class="chip prop">Proposed here</span></div>
+      <div class="ph"><span>skills/journal/SKILL.md (excerpt)</span><span class="chip today">Shipped 0.6.0</span></div>
 <pre><code><span class="c-c">---
 name: journal
-description: Keep a Jupyter notebook as the record of a data
-  exploration while doing it. Use when the user asks to explore,
-  analyze or chart data, or says "journal" or "keep a notebook".
+description: Keep a live Jupyter notebook as the record of a
+  data exploration or analysis while doing it, using the
+  ganymede notebook tools. Use when the user asks to explore,
+  analyze, chart or investigate data, or says "journal" or
+  "keep a notebook".
 ---</span>
-Run analysis code only through the ganymede tools, on the
-notebook's kernel. Never write .ipynb JSON with Read/Write/Edit.
+The notebook is the record of the work, kept while you work,
+not a write-up at the end. Run analysis code only through the
+`ganymede` tools, on the notebook's kernel ...
 
-1. Open the notebook with a title cell: the question, the date,
-   who is working, the kernel. Default kernel: cdp-node.
-2. One question per section. Before code, a Markdown cell says
-   why. After it, a short finding.
-3. Probe with cell_run(record: false). Probes leave no trace.
-4. Steps outside the kernel (gh, curl, files you wrote) go in
-   as recorded cells. Never present them as kernel output.
-5. Small cells that can be re-run. Shared helpers go in a .ts
-   module next to the notebook.
-6. When a finding turns out wrong, edit it where it stands
-   and re-run what it depends on. Don't append a correction.
-7. A cell without agent metadata was written by a person.
-   Read it as input and say how you used it.
-8. Charts: Observable Plot or Vega-Lite. Look at the image
-   that comes back before writing the finding.
-9. Finish with notebook_run_all, then a summary at the top.</code></pre>
+6. Probe with cell_run(record: false) ...
+8. A shell command ... Add it with cell_add(mode: "recorded"),
+   never as kernel output. With this plugin's hooks, a Bash
+   command that ends in the comment `# journal` is recorded
+   for you ...
+9. When a finding turns out wrong, fix it where it stands
+   with cell_edit and re-run what depends on it ...
+10. Cells without metadata.ganymede.agent were written by a
+    person: read them as input ...
+12. ... read the image that comes back before writing the
+    finding ...
+13. Run notebook_run_all ...</code></pre>
     </div>
   </div>
 
   <div class="kit" style="margin-top:24px">
     <div class="panel">
-      <div class="ph"><span>Today, with nothing new built</span><span class="chip today">Works today</span></div>
-<pre><code>$ ganymede serve --root-dir . &amp;          <span class="c-c"># writes jpserver-&lt;pid&gt;.json</span>
-$ nb connect --server http://127.0.0.1:8888 --token $TOKEN
-$ npx skills install jupyter-ai-contrib/nb-cli</code></pre>
-      <div class="pb" style="border-top:1px solid var(--rule)">
-        <p>nb-cli's skill tells Claude to use <code>nb</code> for every notebook operation. Add the journaling conventions to <code>CLAUDE.md</code> and the core loop works now: kernel state persists across <code>nb execute</code> calls, outputs land in the file, text comes back bounded. Missing until the planned work lands: the live view, scratch runs, images to the model, and cells by stable id while a person edits. nb-cli's own docs only show Python kernels, but the 31 October validation ran it on cdp-kernel.</p>
-      </div>
-    </div>
-    <div class="panel">
-      <div class="ph"><span>The one-time setup, later</span><span class="chip plan">Planned</span> <span class="chip prop">Proposed</span></div>
+      <div class="ph"><span>Set up today</span><span class="chip today">Shipped 0.6.0</span></div>
 <pre><code>$ curl -fsSL https://ganymede-server.com/install.sh | sh
+$ ganymede serve --mcp &amp;   <span class="c-c"># optional: shared, so a person can watch</span>
 <span class="c-c"># in Claude Code</span>
 /plugin marketplace add tlockney/ganymede
 /plugin install ganymede-journal@ganymede
-/ganymede:journal why does the interrupt test flake?</code></pre>
+/ganymede-journal:journal why does the interrupt test flake?</code></pre>
       <div class="pb" style="border-top:1px solid var(--rule)">
-        <p><code>/ganymede:journal</code> is the MCP server's <code>journal</code> prompt (#245); Claude Code lists MCP prompts as slash commands. The marketplace can be the Ganymede repo itself, since a marketplace is a <code>marketplace.json</code> in any git repo.</p>
+        <p>Images are off by default. For the agent to see charts, set <code>mcp_images = true</code> on the shared server, or change the plugin's server to <code>ganymede mcp --images</code>, which always starts a server of its own, so nobody can watch live. That trade-off is worth revisiting.</p>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="ph"><span>Without MCP: nb-cli</span><span class="chip today">Shipped 0.5.0</span></div>
+<pre><code>$ ganymede serve --root-dir . &amp;
+$ nb connect --server http://127.0.0.1:8888 --token $TOKEN
+$ npx skills install jupyter-ai-contrib/nb-cli</code></pre>
+      <div class="pb" style="border-top:1px solid var(--rule)">
+        <p>Since 0.5.0 nb-cli's remote mode edits through the document room and runs cells with the execute endpoint, so its edits show live too. Tested with nb-cli 0.0.10, which drops <code>execute_result</code> outputs read from a room (<a href="https://github.com/tlockney/ganymede/issues/296">#296</a>) and still auto-detects servers with Python's <code>jupyter server list</code> (<a href="https://github.com/tlockney/ganymede/issues/317">#317</a>). nb-cli 0.0.11 came out on 4 November and is untested. No scratch runs, read marks or history on this path.</p>
       </div>
     </div>
   </div>
@@ -720,20 +720,20 @@ $ npx skills install jupyter-ai-contrib/nb-cli</code></pre>
         <!-- agent -->
         <rect x="10" y="14" width="260" height="190" rx="4" fill="var(--surface)" stroke="var(--rule)"/>
         <text x="24" y="38" fill="var(--ink)" font-size="13" font-weight="500">Claude Code</text>
-        <text x="24" y="54" fill="var(--ok)" font-size="10.5">unchanged, as shipped</text>
-        <rect x="24" y="66" width="232" height="28" rx="3" fill="var(--prop-soft)"/><text x="34" y="85" fill="var(--prop)" font-size="11.5">skill: journal conventions</text>
-        <rect x="24" y="100" width="232" height="28" rx="3" fill="var(--prop-soft)"/><text x="34" y="119" fill="var(--prop)" font-size="11.5">hooks: context, record, gate</text>
-        <rect x="24" y="134" width="232" height="28" rx="3" fill="var(--prop-soft)"/><text x="34" y="153" fill="var(--prop)" font-size="11.5">subagent: journal-reviewer</text>
+        <text x="24" y="54" fill="var(--ok)" font-size="10.5">unchanged, plus the plugin</text>
+        <rect x="24" y="66" width="232" height="28" rx="3" fill="var(--ok-soft)"/><text x="34" y="85" fill="var(--ok)" font-size="11.5">skill: journal conventions</text>
+        <rect x="24" y="100" width="232" height="28" rx="3" fill="var(--ok-soft)"/><text x="34" y="119" fill="var(--ok)" font-size="11.5">hooks: context, record, gate</text>
+        <rect x="24" y="134" width="232" height="28" rx="3" fill="var(--ok-soft)"/><text x="34" y="153" fill="var(--ok)" font-size="11.5">subagent: journal-reviewer</text>
         <rect x="24" y="168" width="232" height="28" rx="3" fill="var(--ok-soft)"/><text x="34" y="187" fill="var(--ok)" font-size="11.5">MCP client · Bash · Read</text>
         <!-- human -->
         <rect x="10" y="236" width="260" height="76" rx="4" fill="var(--surface)" stroke="var(--rule)"/>
         <text x="24" y="260" fill="var(--human)" font-size="13" font-weight="500">Thomas</text>
-        <text x="24" y="280" fill="var(--ink)" font-size="11.5">ganymede-ui or JupyterLab</text>
-        <text x="24" y="298" fill="var(--muted)" font-size="10.5">watching, adding cells</text>
+        <text x="24" y="280" fill="var(--ink)" font-size="11.5">JupyterLab + collaboration</text>
+        <text x="24" y="298" fill="var(--plan)" font-size="10.5">ganymede-ui next · ui#183</text>
         <!-- mcp -->
-        <rect x="320" y="150" width="170" height="54" rx="4" fill="var(--plan-soft)" stroke="var(--plan)"/>
-        <text x="405" y="173" fill="var(--plan)" font-size="12" text-anchor="middle">ganymede mcp</text>
-        <text x="405" y="191" fill="var(--plan)" font-size="10.5" text-anchor="middle">stdio · #245</text>
+        <rect x="320" y="150" width="170" height="54" rx="4" fill="var(--ok-soft)" stroke="var(--ok)"/>
+        <text x="405" y="173" fill="var(--ok)" font-size="12" text-anchor="middle">ganymede mcp</text>
+        <text x="405" y="191" fill="var(--ok)" font-size="10.5" text-anchor="middle">stdio · 0.5.0</text>
         <!-- shell -->
         <rect x="320" y="40" width="170" height="54" rx="4" fill="var(--surface)" stroke="var(--rule)" stroke-dasharray="4 3"/>
         <text x="405" y="63" fill="var(--ink)" font-size="12" text-anchor="middle">shell</text>
@@ -741,11 +741,11 @@ $ npx skills install jupyter-ai-contrib/nb-cli</code></pre>
         <!-- server -->
         <rect x="540" y="14" width="350" height="298" rx="6" fill="var(--accent-soft)" stroke="var(--accent)"/>
         <text x="556" y="38" fill="var(--accent)" font-size="13" font-weight="500">ganymede serve</text>
-        <rect x="560" y="120" width="190" height="100" rx="4" fill="var(--surface)" stroke="var(--plan)" stroke-width="1.5"/>
+        <rect x="560" y="120" width="190" height="100" rx="4" fill="var(--surface)" stroke="var(--ok)" stroke-width="1.5"/>
         <text x="655" y="152" fill="var(--ink)" font-size="12.5" text-anchor="middle">document room</text>
         <text x="655" y="170" fill="var(--muted)" font-size="10.5" text-anchor="middle">yrs, one per notebook</text>
         <text x="655" y="186" fill="var(--muted)" font-size="10.5" text-anchor="middle">writes outputs itself</text>
-        <text x="655" y="206" fill="var(--plan)" font-size="10.5" text-anchor="middle">#243 · #244</text>
+        <text x="655" y="206" fill="var(--ok)" font-size="10.5" text-anchor="middle">0.5.0</text>
         <rect x="770" y="120" width="106" height="44" rx="4" fill="var(--surface)" stroke="var(--rule)"/>
         <text x="823" y="139" fill="var(--ink)" font-size="11.5" text-anchor="middle">kernel</text>
         <text x="823" y="155" fill="var(--muted)" font-size="10.5" text-anchor="middle">cdp-node</text>
@@ -754,7 +754,7 @@ $ npx skills install jupyter-ai-contrib/nb-cli</code></pre>
         <text x="823" y="286" fill="var(--muted)" font-size="10.5" text-anchor="middle">on disk</text>
         <rect x="560" y="56" width="190" height="44" rx="4" fill="var(--surface)" stroke="var(--rule)"/>
         <text x="655" y="75" fill="var(--ink)" font-size="11.5" text-anchor="middle">Jupyter REST + websocket</text>
-        <text x="655" y="91" fill="var(--ok)" font-size="10.5" text-anchor="middle">today · nb-cli uses this</text>
+        <text x="655" y="91" fill="var(--muted)" font-size="10.5" text-anchor="middle">contents · kernels · execute</text>
         <rect x="560" y="250" width="190" height="44" rx="4" fill="var(--surface)" stroke="var(--rule)"/>
         <text x="655" y="269" fill="var(--ink)" font-size="11.5" text-anchor="middle">room websocket</text>
         <text x="655" y="285" fill="var(--muted)" font-size="10.5" text-anchor="middle">jupyter-collaboration shape</text>
@@ -771,48 +771,47 @@ $ npx skills install jupyter-ai-contrib/nb-cli</code></pre>
         </g>
       </svg>
     </div>
-    <figcaption>Claude Code ships as is; the amber parts are the plugin. The agent and the person edit one room, so neither copies the other's work, and the file on disk follows the room by autosave. Before rooms exist, the same loop runs through nb-cli and the Jupyter REST API at the top, minus the live view.</figcaption>
+    <figcaption>All of this runs with Ganymede 0.6.0. The agent and the person edit one room, so neither copies the other's work, and the file on disk follows the room by autosave. nb-cli takes the same path through the room websocket and the execute endpoint. The one missing piece is ganymede-ui on rooms; until then the person watches in JupyterLab.</figcaption>
   </figure>
 </section>
 
 <!-- ============ GROUNDING ============ -->
 <section id="grounding" aria-labelledby="grounding-h">
   <header>
-    <span class="eyebrow">Reality check</span>
-    <h2 id="grounding-h">What exists, what Ganymede builds, what's proposed</h2>
+    <span class="eyebrow">Reality check · 6 Nov 2026</span>
+    <h2 id="grounding-h">What has shipped, and what's still open</h2>
   </header>
   <div class="grounding scroll">
     <table>
       <thead><tr><th>Capability in the story</th><th>Provided by</th><th>Status</th><th>Source</th></tr></thead>
       <tbody>
         <tr class="group"><td colspan="4">Agent side: Claude Code as shipped</td></tr>
-        <tr><td>Skills load by description or <code>/name</code>, bundle reference files and scripts</td><td>Claude Code skills (Agent Skills format)</td><td><span class="chip today">Today</span></td><td><a href="https://code.claude.com/docs/en/skills">Skills</a></td></tr>
-        <tr><td>One plugin bundles skills, subagents, hooks, MCP servers, monitors; user or project scope</td><td>Claude Code plugins and marketplaces</td><td><span class="chip today">Today</span></td><td><a href="https://code.claude.com/docs/en/plugins">Plugins</a></td></tr>
-        <tr><td>MCP over stdio and streamable HTTP; <code>.mcp.json</code> per project</td><td>Claude Code MCP client</td><td><span class="chip today">Today</span></td><td><a href="https://code.claude.com/docs/en/mcp">MCP</a></td></tr>
-        <tr><td>Images in MCP tool results reach the model; Read shows image files</td><td>Claude Code</td><td><span class="chip today">Today</span></td><td><a href="https://code.claude.com/docs/en/mcp">MCP</a>, <a href="https://code.claude.com/docs/en/tools-reference">Tools</a></td></tr>
-        <tr><td>MCP prompts as slash commands; resources by <code>@</code>-mention</td><td>Claude Code</td><td><span class="chip today">Today</span></td><td><a href="https://code.claude.com/docs/en/mcp">MCP</a></td></tr>
-        <tr><td>Large tool output written to a file, path returned (25,000-token default limit)</td><td>Claude Code (<code>MAX_MCP_OUTPUT_TOKENS</code>)</td><td><span class="chip today">Today</span></td><td><a href="https://code.claude.com/docs/en/mcp">MCP</a></td></tr>
-        <tr><td>Hooks add context (<code>SessionStart</code>, <code>UserPromptSubmit</code>, <code>PostToolUse</code>) and block (<code>Stop</code>, <code>PreToolUse</code>); matchers on MCP tool names</td><td>Claude Code hooks</td><td><span class="chip today">Today</span></td><td><a href="https://code.claude.com/docs/en/hooks">Hooks</a></td></tr>
-        <tr><td>Reviewer with its own context and tool list</td><td>Claude Code subagents</td><td><span class="chip today">Today</span></td><td><a href="https://code.claude.com/docs/en/sub-agents">Subagents</a></td></tr>
-        <tr><td>MCP tools allow-listed per server or per tool</td><td>Claude Code permissions</td><td><span class="chip today">Today</span></td><td><a href="https://code.claude.com/docs/en/permissions">Permissions</a></td></tr>
-        <tr><td>Built-in notebook editing</td><td><code>NotebookEdit</code>: edits a cell by id; no kernel</td><td><span class="chip today">Today</span></td><td><a href="https://code.claude.com/docs/en/tools-reference">Tools</a></td></tr>
-        <tr class="group"><td colspan="4">Notebook side: shipped and validated</td></tr>
-        <tr><td>Agent CLI for notebooks, model-oriented output, bounded with overflow files, Claude Code skill</td><td>nb-cli 0.0.10</td><td><span class="chip today">Today</span></td><td><a href="https://github.com/jupyter-ai-contrib/nb-cli">nb-cli</a></td></tr>
-        <tr><td>nb-cli against <code>ganymede serve</code>; kernel state kept across calls; cdp-kernel and ipykernel</td><td>Ganymede #240</td><td><span class="chip today">Today</span></td><td><a href="https://github.com/tlockney/ganymede/issues/240">#240</a>, <a href="https://github.com/tlockney/ganymede/blob/main/docs/clients.md">clients.md</a></td></tr>
-        <tr><td>Server discovery file <code>jpserver-&lt;pid&gt;.json</code></td><td>Ganymede #242</td><td><span class="chip today">Today</span> (v0.5.0)</td><td><a href="https://github.com/tlockney/ganymede/issues/242">#242</a></td></tr>
-        <tr><td>TypeScript cells, <code>npm:</code> imports, display API (Markdown, HTML, SVG, PNG), Polars, Plot, Vega-Lite</td><td>cdp-kernel</td><td><span class="chip today">Today</span></td><td><a href="https://cdp-kernel.org/docs/jupyter-api">jupyter API</a></td></tr>
-        <tr><td>Re-run a notebook headless, output matching <code>jupyter execute</code></td><td><code>ganymede execute</code></td><td><span class="chip today">Today</span></td><td><a href="https://github.com/tlockney/ganymede/blob/main/docs/reference.md">reference.md</a></td></tr>
-        <tr class="group"><td colspan="4">Ganymede: planned under #239</td></tr>
-        <tr><td>Agents docs page with journaling conventions</td><td>#241</td><td><span class="chip plan">Planned</span></td><td><a href="https://github.com/tlockney/ganymede/issues/241">#241</a></td></tr>
-        <tr><td>Server-owned live document; human and agent in one room</td><td><code>yrs</code> rooms, #243</td><td><span class="chip plan">Planned</span></td><td><a href="https://github.com/tlockney/ganymede/issues/243">#243</a></td></tr>
-        <tr><td>Outputs written by the server; stale-source check</td><td>JSD execute endpoint, #244</td><td><span class="chip plan">Planned</span></td><td><a href="https://github.com/tlockney/ganymede/issues/244">#244</a></td></tr>
-        <tr><td><code>notebook_open</code>, <code>cell_run</code> (and scratch), <code>cell_add</code> (recorded), <code>cell_edit</code>, <code>notebook_run_all</code>, <code>journal</code> prompt, provenance metadata, opt-in PNG/JPEG</td><td><code>ganymede mcp</code>, #245</td><td><span class="chip plan">Planned</span></td><td><a href="https://github.com/tlockney/ganymede/issues/245">#245</a></td></tr>
-        <tr class="group"><td colspan="4">Proposed in this document</td></tr>
-        <tr><td>The <code>ganymede-journal</code> plugin: skill, hooks, reviewer subagent, MCP config</td><td>A plugin, in the Ganymede repo or its own</td><td><span class="chip prop">Proposed</span></td><td><a href="#kit">The kit</a></td></tr>
-        <tr><td>SVG outputs rasterized to PNG in the model's reply</td><td><code>ganymede mcp</code> (a pure-Rust rasterizer such as resvg)</td><td><span class="chip prop">Proposed</span></td><td>M5 above</td></tr>
-        <tr><td>"What changed since my last read" query</td><td>Ganymede API or MCP tool, fed to a hook or monitor</td><td><span class="chip prop">Proposed</span></td><td>M6 above</td></tr>
-        <tr><td>Revision history in cell metadata</td><td><code>metadata.ganymede.agent.history</code></td><td><span class="chip prop">Proposed</span></td><td>M8 above</td></tr>
-        <tr><td>Journal view and static export</td><td>ganymede-ui</td><td><span class="chip prop">Proposed</span></td><td><a href="#journal">The journal</a></td></tr>
+        <tr><td>Skills load by description or <code>/plugin:skill</code>, bundle reference files</td><td>Claude Code skills (Agent Skills format)</td><td><span class="chip today">Shipped</span></td><td><a href="https://code.claude.com/docs/en/skills">Skills</a></td></tr>
+        <tr><td>One plugin bundles skills, subagents, hooks and MCP servers; a git repo can be its marketplace</td><td>Claude Code plugins</td><td><span class="chip today">Shipped</span></td><td><a href="https://code.claude.com/docs/en/plugins">Plugins</a></td></tr>
+        <tr><td>MCP over stdio and streamable HTTP; plugin tools named <code>mcp__plugin_&lt;plugin&gt;_&lt;server&gt;__&lt;tool&gt;</code></td><td>Claude Code MCP client</td><td><span class="chip today">Shipped</span></td><td><a href="https://code.claude.com/docs/en/mcp">MCP</a></td></tr>
+        <tr><td>PNG, JPEG, GIF and WebP in MCP tool results reach the model; SVG doesn't</td><td>Claude Code</td><td><span class="chip today">Shipped</span></td><td><a href="https://code.claude.com/docs/en/mcp">MCP</a></td></tr>
+        <tr><td>Hooks add context (<code>SessionStart</code>, <code>UserPromptSubmit</code>, <code>PostToolUse</code>) and block (<code>Stop</code>)</td><td>Claude Code hooks</td><td><span class="chip today">Shipped</span></td><td><a href="https://code.claude.com/docs/en/hooks">Hooks</a></td></tr>
+        <tr><td>Reviewer with its own context and tool list</td><td>Claude Code subagents</td><td><span class="chip today">Shipped</span></td><td><a href="https://code.claude.com/docs/en/sub-agents">Subagents</a></td></tr>
+        <tr><td>Headless runs for evals</td><td><code>claude -p</code></td><td><span class="chip today">Shipped</span></td><td><a href="https://code.claude.com/docs/en/headless">Headless</a></td></tr>
+        <tr class="group"><td colspan="4">Ganymede and friends: shipped</td></tr>
+        <tr><td>TypeScript cells, <code>npm:</code> imports, display API, Polars, Plot, Vega-Lite</td><td>cdp-kernel (0.8.0 on main)</td><td><span class="chip today">Shipped</span></td><td><a href="https://cdp-kernel.org/docs/jupyter-api">jupyter API</a></td></tr>
+        <tr><td>Server discovery file <code>jpserver-&lt;pid&gt;.json</code></td><td>#242</td><td><span class="chip today">Shipped 0.5.0</span></td><td><a href="https://ganymede-server.com/docs/reference#server-info-file">reference</a></td></tr>
+        <tr><td>Server-owned live document in jupyter-collaboration's schema; watched files, merged outside changes</td><td>Document rooms, #243</td><td><span class="chip today">Shipped 0.5.0</span></td><td><a href="https://ganymede-server.com/docs/rooms">rooms</a></td></tr>
+        <tr><td>Outputs written by the server; <code>source_hash</code> check (409); atomic batches</td><td>JSD execute endpoint, #244</td><td><span class="chip today">Shipped 0.5.0</span></td><td><a href="https://ganymede-server.com/docs/rooms#running-cells-into-a-room">rooms</a></td></tr>
+        <tr><td><code>notebook_open</code>, <code>cell_run</code> (and scratch), <code>cell_add</code> (recorded), <code>cell_edit</code>, <code>notebook_run_all</code>, provenance metadata, <code>journal</code> prompt</td><td><code>ganymede mcp</code>, #245</td><td><span class="chip today">Shipped 0.5.0</span></td><td><a href="https://ganymede-server.com/docs/mcp">mcp</a></td></tr>
+        <tr><td>Journaling conventions documented</td><td>Agents pages, #241</td><td><span class="chip today">Shipped 0.5.0</span></td><td><a href="https://ganymede-server.com/docs/agents">agents</a></td></tr>
+        <tr><td>Scratch runs don't advance the execution count; a timed-out scratch run is interrupted</td><td>#294, #323</td><td><span class="chip today">Shipped 0.6.0</span></td><td><a href="https://ganymede-server.com/docs/mcp#provenance">mcp</a></td></tr>
+        <tr><td>SVG outputs rasterized to PNG for the agent (resvg), with <code>--images</code></td><td>#312</td><td><span class="chip today">Shipped 0.6.0</span></td><td><a href="https://ganymede-server.com/docs/mcp#what-the-agent-sees">mcp</a></td></tr>
+        <tr><td>"What changed since my last read": <code>@@read</code> marks and <code>notebook_read(since)</code></td><td>#313</td><td><span class="chip today">Shipped 0.6.0</span></td><td><a href="https://ganymede-server.com/docs/mcp#changes-by-others">mcp</a></td></tr>
+        <tr><td>Superseded text in <code>metadata.ganymede.agent.history</code></td><td>#314</td><td><span class="chip today">Shipped 0.6.0</span></td><td><a href="https://ganymede-server.com/docs/mcp#provenance">mcp</a></td></tr>
+        <tr><td>The <code>ganymede-journal</code> plugin: skill, four hooks, reviewer, MCP config; <code>ganymede mcp call</code> for hooks</td><td>#315</td><td><span class="chip today">Shipped 0.6.0</span></td><td><a href="#kit">The kit</a></td></tr>
+        <tr><td>nb-cli through rooms and the execute endpoint</td><td>nb-cli 0.0.10 on <code>ganymede serve</code></td><td><span class="chip today">Shipped 0.5.0</span></td><td><a href="https://ganymede-server.com/docs/clients">clients</a></td></tr>
+        <tr class="group"><td colspan="4">Still open</td></tr>
+        <tr><td>Live view in ganymede-ui</td><td>App edits through rooms</td><td><span class="chip plan">Tracked</span></td><td><a href="https://github.com/tlockney/ganymede-ui/issues/183">ganymede-ui#183</a></td></tr>
+        <tr><td>Journal view and static export</td><td>ganymede-ui</td><td><span class="chip plan">Tracked</span></td><td><a href="https://github.com/tlockney/ganymede-ui/issues/184">ganymede-ui#184</a></td></tr>
+        <tr><td>Eval baseline</td><td><code>evals/journal</code> on main; baseline to run by hand</td><td><span class="chip plan">Tracked</span></td><td><a href="https://github.com/tlockney/ganymede/issues/316">#316</a></td></tr>
+        <tr><td>nb-cli fixes upstream: <code>execute_result</code> from rooms; discovery from <code>jpserver-*.json</code></td><td>jupyter-ai-contrib/nb-cli</td><td><span class="chip plan">Tracked</span></td><td><a href="https://github.com/tlockney/ganymede/issues/296">#296</a>, <a href="https://github.com/tlockney/ganymede/issues/317">#317</a></td></tr>
+        <tr><td>One owner per notebook across servers</td><td>Room locks, on main</td><td><span class="chip plan">Tracked</span></td><td><a href="https://github.com/tlockney/ganymede/issues/272">#272</a></td></tr>
       </tbody>
     </table>
   </div>
@@ -830,20 +829,21 @@ $ npx skills install jupyter-ai-contrib/nb-cli</code></pre>
       <div class="faq">
         <details open><summary>Why a notebook and not a Markdown report?</summary><div class="a"><p>A report is written after the fact. A notebook can be re-run: the code, its outputs and the narration live in one file that <code>ganymede execute</code> checks. It also opens in tools you already have.</p></div></details>
         <details><summary>Can't Claude Code already edit notebooks?</summary><div class="a"><p>Its <code>NotebookEdit</code> tool edits cells in the file, but runs nothing. Journaling needs a kernel whose state lasts across calls, outputs written back, and a document a person can watch. That's the server's job.</p></div></details>
-        <details><summary>Do I need Python?</summary><div class="a"><p>No. Ganymede, nb-cli and cdp-kernel are Rust and TypeScript. A Python kernel works if you install one.</p></div></details>
-        <details><summary>Does it work with agents other than Claude Code?</summary><div class="a"><p>The MCP server and the skill do: MCP is an open protocol, and the skill uses the Agent Skills format. The hooks are Claude Code's, so another agent gets the conventions without the enforcement.</p></div></details>
-        <details><summary>What does the agent actually see of my outputs?</summary><div class="a"><p>Text first, cut to about 4,000 characters, with the full output in a file it can open. Errors come back short and without colour codes. Images come back as images if you allow it, which you want for charts.</p></div></details>
-        <details><summary>What happens to dead ends?</summary><div class="a"><p>Quick probes leave nothing. A hypothesis that was tested and failed stays, because the test is evidence; the finding is revised to say so. The old wording is in metadata, not on the page.</p></div></details>
+        <details><summary>Do I need Python?</summary><div class="a"><p>No. Ganymede, nb-cli and cdp-kernel are Rust and TypeScript, and the plugin's hooks run on Node. A Python kernel works if you install one.</p></div></details>
+        <details><summary>Does it work with agents other than Claude Code?</summary><div class="a"><p>The MCP server and the skill do: <code>ganymede mcp</code> is documented for Codex and Cursor too, and the skill uses the Agent Skills format. The hooks are Claude Code's, so another agent gets the conventions without the enforcement.</p></div></details>
+        <details><summary>What does the agent actually see of my outputs?</summary><div class="a"><p>Text first, in nb-cli's <code>@@cell</code>/<code>@@output</code> format, cut at 4,000 characters with the rest in a file it can open. Tracebacks come back short and without colour codes. Images, SVG charts included, come back as PNG only when the server runs with images on.</p></div></details>
+        <details><summary>What happens to dead ends?</summary><div class="a"><p>Probes leave nothing. A hypothesis that was tested and failed stays, because the test is evidence; the finding is revised to say so, and the old wording is kept in the cell's history (the last 10 versions).</p></div></details>
+        <details><summary>Can I watch live?</summary><div class="a"><p>In JupyterLab with the collaboration extension, yes, when the agent uses a shared <code>ganymede serve --mcp</code>. ganymede-ui shows the agent's work after a reload until it moves to rooms (ganymede-ui#183).</p></div></details>
       </div>
     </div>
     <div>
       <p class="eyebrow" style="margin-bottom:8px">Internal</p>
       <div class="faq">
-        <details open><summary>What is the smallest version worth shipping?</summary><div class="a"><p>The journaling skill on top of nb-cli and <code>ganymede serve</code>, which runs today. It tests whether the conventions produce notebooks people want to read, before rooms, the MCP server or the view are built.</p></div></details>
-        <details><summary>What's the biggest risk?</summary><div class="a"><p>The rooms spike (#243): matching the <code>pycrdt</code> notebook schema JupyterLab's collaboration client expects from <code>yrs</code>. The live view, server-side outputs and the MCP server depend on it.</p></div></details>
-        <details><summary>Does this need a custom harness?</summary><div class="a"><p>No. Every agent behavior in the session uses documented Claude Code features. The new code is a Rust MCP server, server features in Ganymede, a plugin of Markdown and small TypeScript hooks, and a UI view.</p></div></details>
-        <details><summary>How do we know it works?</summary><div class="a"><p>A small eval set of exploration tasks with known answers, run headless with <code>claude -p</code> and the plugin. Measure: share of sessions that end with a clean run-all, recorded steps passed off as kernel output (should be zero), findings revised versus appended, and how often a person had to rewrite the summary. Block's mcp-jupyter cut 11 tools to 4 after evals like this.</p></div></details>
-        <details><summary>What stays open?</summary><div class="a"><p>Whether recorded cells should be Markdown or <code>raw</code>. Whether scratch runs should leave a count. Whether the PostToolUse hook records every Bash call or only ones the agent marks. Where the plugin lives. How a journal entry links to the chat that produced it.</p></div></details>
+        <details open><summary>What's left before the release above is true?</summary><div class="a"><p>The look and the live view in Ganymede's own app: ganymede-ui on rooms (#183), then the journal view and export (#184). Everything the agent does in the session already works with 0.6.0.</p></div></details>
+        <details><summary>Images or a live view: why choose?</summary><div class="a"><p>Images are a per-server setting. The plugin's default <code>ganymede mcp</code> joins a shared server, which sends images only if it was started with <code>mcp_images = true</code>; <code>--images</code> makes the agent start a private server nobody can watch. Turning images on in the shared server's config gives both, but it isn't the default. Worth deciding whether it should be.</p></div></details>
+        <details><summary>How do we know it works?</summary><div class="a"><p><code>evals/journal</code> on main runs three seeded tasks with known answers and a trap each (duplicated rows, a shell step, a unit mix-up) through <code>claude -p</code> with the plugin, then scores the finished notebook: clean run-all, recorded steps passed off as kernel output, findings revised versus appended, and summary rewrites. The baseline hasn't been run yet (#316).</p></div></details>
+        <details><summary>Which open questions got answered?</summary><div class="a"><p>Recorded cells are Markdown with fenced blocks. The Bash hook records only commands ending in <code># journal</code> by default. The plugin lives in the Ganymede repo. Scratch runs still leave no trace.</p></div></details>
+        <details><summary>What stays open?</summary><div class="a"><p>Whether images should be on by default. Whether scratch runs should leave a count. How a journal entry links to the chat that produced it. Whether to move the tested nb-cli to 0.0.11.</p></div></details>
       </div>
     </div>
   </div>
@@ -856,20 +856,21 @@ $ npx skills install jupyter-ai-contrib/nb-cli</code></pre>
     <h2 id="next-h">Order of work</h2>
   </header>
   <ol class="steps">
-    <li><div><b>Write the journaling skill and try it on nb-cli today</b><span class="d">Use the SKILL.md above with <code>ganymede serve</code> and nb-cli on two or three real explorations. Keep what reads well; this also drafts the Agents page (#241).</span></div><span class="chip today">Can start now</span></li>
-    <li><div><b>Rooms spike, then the execute endpoint</b><span class="d">#243 and #244, already ordered in #239.</span></div><span class="chip plan">Planned</span></li>
-    <li><div><b><code>ganymede mcp</code>, with SVG-to-PNG in replies</b><span class="d">#245, plus the rasterizing step proposed here so charts reach the model.</span></div><span class="chip plan">Planned</span></li>
-    <li><div><b>The plugin</b><span class="d">Move the skill in, add the four hooks and the reviewer, and publish a marketplace entry.</span></div><span class="chip prop">Proposed</span></li>
-    <li><div><b>Journal view in ganymede-ui</b><span class="d">Provenance gutter, revisions, run-all stamp, static export. Needs the rooms move in ganymede-ui.</span></div><span class="chip prop">Proposed</span></li>
-    <li><div><b>Evals</b><span class="d">The measures in the FAQ, run headless against each change to the skill or tools.</span></div><span class="chip prop">Proposed</span></li>
+    <li><div><b>Server: rooms, execute, <code>ganymede mcp</code></b><span class="d">#243, #244, #245.</span></div><span class="chip today">Shipped 0.5.0</span></li>
+    <li><div><b>The plugin, SVG to PNG, read marks, history</b><span class="d">#312 to #315, everything this page proposed on the agent side.</span></div><span class="chip today">Shipped 0.6.0</span></li>
+    <li><div><b>Run the eval baseline</b><span class="d">The harness is on main. Run it by hand and record the numbers, so later changes to the skill or tools can be measured (#316).</span></div><span class="chip plan">Tracked</span></li>
+    <li><div><b>ganymede-ui on document rooms</b><span class="d">The live view in Ganymede's own app. Next on Ganymede's roadmap (ganymede-ui#183).</span></div><span class="chip plan">Tracked</span></li>
+    <li><div><b>Journal view and static export</b><span class="d">Provenance gutter, revisions, run-all stamp, export (ganymede-ui#184).</span></div><span class="chip plan">Tracked</span></li>
+    <li><div><b>nb-cli upstream</b><span class="d">Report the <code>execute_result</code> bug and propose discovery from <code>jpserver-*.json</code>; both wait on your OK (#296, #317).</span></div><span class="chip plan">Tracked</span></li>
   </ol>
 
   <div class="sources" style="margin-top:40px">
-    <p><b style="color:var(--ink)">Sources</b> (read 31 Oct 2026)</p>
+    <p><b style="color:var(--ink)">Sources</b> (first read 31 Oct, reviewed 6 Nov 2026)</p>
     <ul>
-      <li>Ganymede: <a href="https://github.com/tlockney/ganymede/issues/239">#239 agent-native tracking issue</a> and its sub-issues #240 to #245; <code>docs/clients.md</code>; dev-log notes on nb-cli validation and the server info file; the Agent-native Ganymede design memo.</li>
+      <li>Ganymede: <a href="https://github.com/tlockney/ganymede/issues/239">#239</a> (closed) and <a href="https://github.com/tlockney/ganymede/issues/311">#311</a>; <a href="https://github.com/tlockney/ganymede/blob/main/CHANGELOG.md">CHANGELOG</a> for 0.5.0 and 0.6.0; docs <a href="https://ganymede-server.com/docs/mcp">Agents over MCP</a>, <a href="https://ganymede-server.com/docs/rooms">rooms</a>, <a href="https://ganymede-server.com/docs/agents">Agents with nb-cli</a>, <a href="https://ganymede-server.com/docs/clients">clients</a>; dev-log notes on the plugin, read marks, SVG images, cell history and evals; the Agent-native Ganymede design memo.</li>
+      <li>ganymede-ui: <a href="https://github.com/tlockney/ganymede-ui/issues/183">#183</a>, <a href="https://github.com/tlockney/ganymede-ui/issues/184">#184</a>.</li>
       <li>cdp-kernel: README, <code>docs/jupyter-api.md</code>, the MoMA example notebook.</li>
-      <li>nb-cli: <a href="https://github.com/jupyter-ai-contrib/nb-cli">README</a> and <code>skills/notebook-cli/SKILL.md</code>.</li>
+      <li>nb-cli: <a href="https://github.com/jupyter-ai-contrib/nb-cli">README</a>, <code>skills/notebook-cli/SKILL.md</code>; 0.0.11 on crates.io, 4 Nov.</li>
       <li>Claude Code docs: <a href="https://code.claude.com/docs/en/skills">skills</a>, <a href="https://code.claude.com/docs/en/plugins">plugins</a>, <a href="https://code.claude.com/docs/en/mcp">MCP</a>, <a href="https://code.claude.com/docs/en/hooks">hooks</a>, <a href="https://code.claude.com/docs/en/sub-agents">subagents</a>, <a href="https://code.claude.com/docs/en/tools-reference">tools</a>, <a href="https://code.claude.com/docs/en/headless">headless</a>.</li>
       <li>Forms: Amazon's working-backwards press release and FAQ; Near Future Laboratory's design fiction.</li>
     </ul>
